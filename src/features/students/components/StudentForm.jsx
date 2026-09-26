@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
+import ImageUploader from '../../../components/ui/ImageUploader'
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'فعال' },
@@ -10,7 +11,13 @@ const STATUS_OPTIONS = [
   { value: 'transferred', label: 'انتقالی' },
 ]
 
-export default function StudentForm({ open, student, onClose, onSubmit, loading }) {
+export default function StudentForm({
+  open,
+  student,
+  onClose,
+  onSubmit,
+  loading,
+}) {
   const [form, setForm] = useState({
     name: '',
     father_name: '',
@@ -207,13 +214,14 @@ export default function StudentForm({ open, student, onClose, onSubmit, loading 
             placeholder="ولسوالی ورس، قریه ..."
           />
 
-          <Input
-            label="لینک عکس (اختیاری)"
+          <ImageUploader
             value={form.photo_url}
-            onChange={(e) => set('photo_url', e.target.value)}
-            dir="ltr"
-            className="text-left"
-            placeholder="https://..."
+            onChange={(url) => set('photo_url', url)}
+            folder="students"
+            label="عکس دانش‌آموز (اختیاری)"
+            aspect="square"
+            maxSizeKB={300}
+            maxInputMB={5}
           />
 
           <div>
@@ -243,7 +251,12 @@ export default function StudentForm({ open, student, onClose, onSubmit, loading 
           </div>
 
           <div className="flex gap-2 sm:gap-3 pt-2 pb-2">
-            <Button type="submit" disabled={loading} className="flex-1" size="lg">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="flex-1"
+              size="lg"
+            >
               {loading ? 'در حال ذخیره...' : 'ذخیره'}
             </Button>
             <Button type="button" variant="outline" onClick={onClose} size="lg">

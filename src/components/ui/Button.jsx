@@ -1,5 +1,6 @@
 import { cn } from '../../utils/cn'
 import { useOnlineStatus } from '../../hooks/useOnlineStatus'
+import { WifiOff } from 'lucide-react'
 
 const variantClass = {
   primary: 'btn-primary',
@@ -22,20 +23,30 @@ export default function Button({
   className,
   disabled,
   skipOfflineCheck = false,
+  showOfflineIcon = true,
   ...props
 }) {
   const isOnline = useOnlineStatus()
-
-  // اگر آفلاین است و دکمه "عملیات نوشتنی" است → disabled
-  const isDisabled = disabled || (!skipOfflineCheck && !isOnline)
+  const isOffline = !isOnline && !skipOfflineCheck
+  const isDisabled = disabled || isOffline
 
   return (
     <button
-      className={cn('btn', variantClass[variant], sizeClass[size], className)}
+      className={cn(
+        'btn',
+        variantClass[variant],
+        sizeClass[size],
+        isOffline && 'btn-offline',
+        className
+      )}
       disabled={isDisabled}
-      title={!isOnline && !skipOfflineCheck ? 'در حالت آفلاین غیرفعال است' : undefined}
+      title={isOffline ? 'در حالت آفلاین غیرفعال است' : undefined}
+      aria-disabled={isDisabled}
       {...props}
     >
+      {isOffline && showOfflineIcon && (
+        <WifiOff size={12} className="opacity-70" />
+      )}
       {children}
     </button>
   )

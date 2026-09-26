@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { X, Image as ImageIcon } from 'lucide-react'
+import { X } from 'lucide-react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
+import ImageUploader from '../../../components/ui/ImageUploader'
 
 const CATEGORIES = [
   { value: 'school', label: 'مکتب' },
@@ -11,13 +12,19 @@ const CATEGORIES = [
   { value: 'other', label: 'سایر' },
 ]
 
-export default function GalleryForm({ open, item, onClose, onSubmit, loading }) {
+export default function GalleryForm({
+  open,
+  item,
+  totalCount = 0,
+  onClose,
+  onSubmit,
+  loading,
+}) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [category, setCategory] = useState('school')
   const [eventDate, setEventDate] = useState('')
-  const [imageError, setImageError] = useState(false)
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
@@ -35,7 +42,6 @@ export default function GalleryForm({ open, item, onClose, onSubmit, loading }) 
       setEventDate('')
     }
     setErrors({})
-    setImageError(false)
   }, [item, open])
 
   if (!open) return null
@@ -43,7 +49,7 @@ export default function GalleryForm({ open, item, onClose, onSubmit, loading }) 
   function handleSubmit(e) {
     e.preventDefault()
     const errs = {}
-    if (!imageUrl.trim()) errs.imageUrl = 'لینک عکس الزامی است'
+    if (!imageUrl.trim()) errs.imageUrl = 'آپلود عکس الزامی است'
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
@@ -83,44 +89,27 @@ export default function GalleryForm({ open, item, onClose, onSubmit, loading }) 
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
-          {/* لینک عکس */}
-          <Input
-            label="لینک عکس *"
-            value={imageUrl}
-            onChange={(e) => {
-              setImageUrl(e.target.value)
-              setImageError(false)
-              if (errors.imageUrl) setErrors((er) => ({ ...er, imageUrl: '' }))
-            }}
-            autoFocus
-            dir="ltr"
-            className="text-left"
-            placeholder="https://..."
-            hint="آپلود مستقیم عکس به‌زودی اضافه می‌شود"
-            error={errors.imageUrl}
-          />
+          <div>
+            <ImageUploader
+              value={imageUrl}
+              onChange={(url) => {
+                setImageUrl(url)
+                if (errors.imageUrl)
+                  setErrors((er) => ({ ...er, imageUrl: '' }))
+              }}
+              folder="gallery"
+              label="عکس *"
+              aspect="square"
+              maxSizeKB={500}
+              maxInputMB={10}
+              currentTotal={totalCount}
+              maxTotal={200}
+            />
+            {errors.imageUrl && (
+              <p className="input-error-text mt-1">{errors.imageUrl}</p>
+            )}
+          </div>
 
-          {/* پیش‌نمایش */}
-          {imageUrl && !imageError && (
-            <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-              <img
-                src={imageUrl}
-                alt="پیش‌نمایش"
-                className="w-full h-48 object-cover"
-                onError={() => setImageError(true)}
-              />
-            </div>
-          )}
-          {imageError && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
-              <ImageIcon size={24} className="mx-auto text-red-400 mb-2" />
-              <p className="text-xs text-red-700">
-                عکس لود نشد. لینک را چک کن.
-              </p>
-            </div>
-          )}
-
-          {/* دسته‌بندی */}
           <div>
             <label className="input-label">دسته‌بندی</label>
             <div className="grid grid-cols-2 gap-2">
@@ -141,7 +130,6 @@ export default function GalleryForm({ open, item, onClose, onSubmit, loading }) 
             </div>
           </div>
 
-          {/* عنوان */}
           <Input
             label="عنوان (اختیاری)"
             value={title}
@@ -149,7 +137,6 @@ export default function GalleryForm({ open, item, onClose, onSubmit, loading }) 
             placeholder="مثلاً: مراسم افتتاح سال تعلیمی"
           />
 
-          {/* توضیحات */}
           <div>
             <label className="input-label">توضیحات (اختیاری)</label>
             <textarea
@@ -161,7 +148,6 @@ export default function GalleryForm({ open, item, onClose, onSubmit, loading }) 
             />
           </div>
 
-          {/* تاریخ رویداد */}
           <Input
             label="تاریخ رویداد (اختیاری)"
             value={eventDate}
@@ -171,7 +157,12 @@ export default function GalleryForm({ open, item, onClose, onSubmit, loading }) 
           />
 
           <div className="flex gap-2 sm:gap-3 pt-2 pb-2">
-            <Button type="submit" disabled={loading} className="flex-1" size="lg">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="flex-1"
+              size="lg"
+            >
               {loading ? 'در حال ذخیره...' : 'ذخیره'}
             </Button>
             <Button type="button" variant="outline" onClick={onClose} size="lg">

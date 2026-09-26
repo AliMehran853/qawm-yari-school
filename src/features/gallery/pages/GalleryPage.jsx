@@ -30,19 +30,20 @@ export default function GalleryPage() {
   const [editing, setEditing] = useState(null)
   const [lightboxIndex, setLightboxIndex] = useState(null)
 
-  const { data: items, isLoading } = useGallery(filter)
+  const { data: allItems } = useGallery(null)
+  const { data: filtered, isLoading } = useGallery(filter)
   const createMut = useCreateGalleryItem()
   const updateMut = useUpdateGalleryItem()
   const deleteMut = useDeleteGalleryItem()
 
   const counts = useMemo(() => {
-    if (!items) return {}
-    const c = { all: items.length }
-    items.forEach((i) => {
+    if (!allItems) return {}
+    const c = { all: allItems.length }
+    allItems.forEach((i) => {
       c[i.category] = (c[i.category] || 0) + 1
     })
     return c
-  }, [items])
+  }, [allItems])
 
   function handleAdd() {
     setEditing(null)
@@ -71,16 +72,15 @@ export default function GalleryPage() {
   }
 
   function handleNavigate(direction) {
-    if (lightboxIndex === null || !items) return
+    if (lightboxIndex === null || !filtered) return
     let next = lightboxIndex + direction
-    if (next < 0) next = items.length - 1
-    if (next >= items.length) next = 0
+    if (next < 0) next = filtered.length - 1
+    if (next >= filtered.length) next = 0
     setLightboxIndex(next)
   }
 
   return (
     <PageWrapper>
-      {/* ─── هدر ─── */}
       <div className="flex items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
         <div className="min-w-0 flex-1">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-brand-700">
@@ -96,8 +96,7 @@ export default function GalleryPage() {
         </Button>
       </div>
 
-      {/* ─── فیلتر ─── */}
-      {items?.length > 0 && (
+      {allItems?.length > 0 && (
         <div className="mb-4 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto">
           <div className="flex gap-2 min-w-max sm:min-w-0 sm:flex-wrap">
             {CATEGORIES.map((c) => {
@@ -114,11 +113,7 @@ export default function GalleryPage() {
                   }`}
                 >
                   <span>{c.label}</span>
-                  <span
-                    className={`text-[10px] fa-num ${
-                      filter === c.value ? 'opacity-80' : 'opacity-60'
-                    }`}
-                  >
+                  <span className="text-[10px] opacity-70 fa-num">
                     ({toFaNum(count)})
                   </span>
                 </button>
@@ -128,7 +123,6 @@ export default function GalleryPage() {
         </div>
       )}
 
-      {/* ─── محتوا ─── */}
       {isLoading ? (
         <div className="py-16 text-center">
           <div
@@ -137,7 +131,7 @@ export default function GalleryPage() {
           />
           <p className="text-sm text-gray-500 mt-3">در حال بارگذاری...</p>
         </div>
-      ) : items?.length === 0 ? (
+      ) : !allItems || allItems.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <EmptyState
             icon={ImageIcon}
@@ -153,33 +147,31 @@ export default function GalleryPage() {
         </div>
       ) : (
         <GalleryGrid
-          items={items}
+          items={filtered || []}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onItemClick={setLightboxIndex}
         />
       )}
 
-      {/* ─── تعداد ─── */}
-      {items?.length > 0 && (
+      {filtered?.length > 0 && (
         <p className="text-xs text-gray-400 text-center mt-4">
-          {toFaNum(items.length)} عکس
+          {toFaNum(filtered.length)} عکس از {toFaNum(allItems.length)}
         </p>
       )}
 
-      {/* ─── فرم ─── */}
       <GalleryForm
         open={formOpen}
         item={editing}
+        totalCount={allItems?.length || 0}
         onClose={() => setFormOpen(false)}
         onSubmit={handleSubmit}
         loading={createMut.isPending || updateMut.isPending}
       />
 
-      {/* ─── Lightbox ─── */}
-      {lightboxIndex !== null && items && (
+      {lightboxIndex !== null && filtered && (
         <Lightbox
-          items={items}
+          items={filtered}
           currentIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onNavigate={handleNavigate}

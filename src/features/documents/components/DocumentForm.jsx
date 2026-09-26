@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { X, FileText } from 'lucide-react'
+import { X } from 'lucide-react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
+import FileUploader from '../../../components/ui/FileUploader'
 
 const CATEGORIES = [
   { value: 'book', label: 'کتاب' },
@@ -18,7 +19,13 @@ const FILE_TYPES = [
   { value: 'other', label: 'سایر' },
 ]
 
-export default function DocumentForm({ open, doc, onClose, onSubmit, loading }) {
+export default function DocumentForm({
+  open,
+  doc,
+  onClose,
+  onSubmit,
+  loading,
+}) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [fileUrl, setFileUrl] = useState('')
@@ -52,7 +59,7 @@ export default function DocumentForm({ open, doc, onClose, onSubmit, loading }) 
     e.preventDefault()
     const errs = {}
     if (!title.trim()) errs.title = 'عنوان الزامی است'
-    if (!fileUrl.trim()) errs.fileUrl = 'لینک فایل الزامی است'
+    if (!fileUrl.trim()) errs.fileUrl = 'آپلود فایل الزامی است'
 
     if (Object.keys(errs).length > 0) {
       setErrors(errs)
@@ -105,21 +112,23 @@ export default function DocumentForm({ open, doc, onClose, onSubmit, loading }) 
             error={errors.title}
           />
 
-          <Input
-            label="لینک فایل *"
-            value={fileUrl}
-            onChange={(e) => {
-              setFileUrl(e.target.value)
-              if (errors.fileUrl) setErrors((er) => ({ ...er, fileUrl: '' }))
-            }}
-            dir="ltr"
-            className="text-left"
-            placeholder="https://example.com/file.pdf"
-            hint="آپلود مستقیم فایل به‌زودی اضافه می‌شود"
-            error={errors.fileUrl}
-          />
+          <div>
+            <FileUploader
+              value={fileUrl}
+              onChange={(url) => {
+                setFileUrl(url)
+                if (errors.fileUrl)
+                  setErrors((er) => ({ ...er, fileUrl: '' }))
+              }}
+              folder="documents"
+              label="فایل سند *"
+              maxSizeMB={10}
+            />
+            {errors.fileUrl && (
+              <p className="input-error-text mt-1">{errors.fileUrl}</p>
+            )}
+          </div>
 
-          {/* نوع فایل */}
           <div>
             <label className="input-label">نوع فایل</label>
             <div className="grid grid-cols-4 gap-2">
@@ -140,7 +149,6 @@ export default function DocumentForm({ open, doc, onClose, onSubmit, loading }) 
             </div>
           </div>
 
-          {/* دسته‌بندی */}
           <div>
             <label className="input-label">دسته‌بندی</label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -161,7 +169,6 @@ export default function DocumentForm({ open, doc, onClose, onSubmit, loading }) 
             </div>
           </div>
 
-          {/* صنف */}
           <div>
             <label className="input-label">صنف (اختیاری)</label>
             <select
@@ -178,7 +185,6 @@ export default function DocumentForm({ open, doc, onClose, onSubmit, loading }) 
             </select>
           </div>
 
-          {/* توضیحات */}
           <div>
             <label className="input-label">توضیحات (اختیاری)</label>
             <textarea
@@ -191,7 +197,12 @@ export default function DocumentForm({ open, doc, onClose, onSubmit, loading }) 
           </div>
 
           <div className="flex gap-2 sm:gap-3 pt-2 pb-2">
-            <Button type="submit" disabled={loading} className="flex-1" size="lg">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="flex-1"
+              size="lg"
+            >
               {loading ? 'در حال ذخیره...' : 'ذخیره'}
             </Button>
             <Button type="button" variant="outline" onClick={onClose} size="lg">
