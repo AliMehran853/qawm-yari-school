@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../store/authStore'
 
-const usernameToEmail = (username) =>
-  `${username.toLowerCase().trim()}@qawmyari.local`
+// ⚠️ ایمیل Auth برای همیشه ثابت است — از نام کاربری ساخته نمی‌شود
+const AUTH_EMAIL = 'admin@qawmyari.local'
 
 async function loadProfile(userId) {
   const { data, error } = await supabase
@@ -26,55 +26,39 @@ export function useAuthInit() {
   const clear = useAuthStore((s) => s.clear)
 
   useEffect(() => {
-    let mounted = true
-
-    // ۱. سریع چک کن session داریم یا نه
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!mounted) return
-
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user)
-        // ⚡️ فوراً loading را خاموش کن — UI نمایش داده شود
-        setLoading(false)
-
-        // پروفایل را در پس‌زمینه لود کن
-        loadProfile(session.user.id).then((profile) => {
-          if (mounted && profile) setProfile(profile)
-        })
-      } else {
-        // کاربر لاگین نیست
-        setLoading(false)
+        const profile = await loadProfile(session.user.id)
+        if (profile) setProfile(profile)
       }
+      setLoading(false)
     })
 
-    // ۲. تغییرات Auth
     const { data: sub } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        if (!mounted) return
-
         if (session?.user) {
           setUser(session.user)
-          setLoading(false)
           const profile = await loadProfile(session.user.id)
-          if (mounted && profile) setProfile(profile)
+          if (profile) setProfile(profile)
         } else {
           clear()
         }
+        setLoading(false)
       }
     )
 
-    return () => {
-      mounted = false
-      sub.subscription.unsubscribe()
-    }
+    return () => sub.subscription.unsubscribe()
   }, [setUser, setProfile, setLoading, clear])
 }
 
+// ─── ورود ───
+// فقط نام کاربری "admin" را می‌پذیرد — چون فقط یک مدیر داریم
 export async function login(username, password) {
-  const email = usernameToEmail(username)
+  const cleanUsername = username.toLowerCase().trim()
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: AUTH_EMAIL,
     password,
   })
 
@@ -85,9 +69,17 @@ export async function login(username, password) {
     return { error: error.message }
   }
 
+  // حالا چک کن نام کاربری واردشده با profile.username مطابقت دارد
   const profile = await loadProfile(data.user.id)
+
   if (!profile) {
     return { error: 'پروفایل کاربر پیدا نشد' }
+  }
+
+  // اگر نام کاربری اشتباه بود، خارج شو
+  if (profile.username !== cleanUsername) {
+    await supabase.auth.signOut()
+    return { error: 'نام کاربری یا رمز عبور اشتباه است' }
   }
 
   return { data, profile }

@@ -1,5 +1,5 @@
+
 import {
-  Database,
   LayoutDashboard,
   Users,
   GraduationCap,
@@ -15,6 +15,8 @@ import {
   PenSquare,
   Award,
   CalendarDays,
+  UserCircle,
+  Database,
 } from 'lucide-react'
 
 import { ROLES } from './roles'
@@ -42,6 +44,7 @@ const ADMIN_MENU = [
   { to: '/panel/registrations', label: 'ثبت‌نام صنف اول', icon: ClipboardList },
   { to: '/panel/promotion', label: 'ترفیع دسته‌جمعی', icon: GraduationCap },
   { to: '/panel/backup', label: 'پشتیبان‌گیری', icon: Database },
+  { to: '/panel/account', label: 'حساب من', icon: UserCircle },
   { to: '/panel/settings', label: 'تنظیمات', icon: Settings },
 ]
 

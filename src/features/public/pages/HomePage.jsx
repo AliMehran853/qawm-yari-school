@@ -7,8 +7,12 @@ import {
   ArrowLeft,
   Image as ImageIcon,
   MapPin,
-  CalendarCheck,
+  Sparkles,
+  BookOpen,
 } from 'lucide-react'
+
+// ─── عکس Hero ───
+import heroImage from '../../../assets/pictures/Hero-school.webp'
 
 import { useSettings } from '../../settings/useSettings'
 import { useTeachers } from '../../teachers/useTeachers'
@@ -26,45 +30,52 @@ export default function HomePage() {
   const { data: gallery } = useGallery()
 
   const schoolName = settings?.school_name || 'مکتب قوم یاری'
-  const fullName = settings?.school_full_name || ''
+  const fullName = settings?.school_full_name || 'لیسه قوم یاری'
   const address = settings?.address || 'ولسوالی ورس، بامیان'
+  const tagline =
+    settings?.hero_tagline ||
+    'لیسه‌ای فعال در قلب ورس که نسل آینده را آموزش می‌دهد.'
 
-  const recentAnnouncements = (announcements || [])
-    .slice(0, 3)
+  const recentAnnouncements = (announcements || []).slice(0, 3)
   const previewPhotos = (gallery || []).slice(0, 6)
 
   return (
     <>
-      {/* ─── Hero ─── */}
-      <section className="relative bg-gradient-to-bl from-brand-700 to-brand-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 20% 30%, white 1px, transparent 1px), radial-gradient(circle at 70% 60%, white 1px, transparent 1px)',
-            backgroundSize: '40px 40px, 60px 60px'
-          }} />
+      {/* ═══ Hero ═══ */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src={heroImage}
+            alt={schoolName}
+            className="w-full h-full object-cover"
+            loading="eager"
+          />
+          <div className="absolute inset-0 hero-overlay-mobile sm:hidden" />
+          <div className="absolute inset-0 hero-overlay hidden sm:block" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-16 sm:py-20 lg:py-24">
+        <div className="relative max-w-7xl mx-auto px-4 py-20 sm:py-28 lg:py-36 min-h-[520px] sm:min-h-[600px] flex items-center">
           <div className="max-w-2xl">
-            {settings?.logo_url && (
-              <img
-                src={settings.logo_url}
-                alt={schoolName}
-                className="w-16 h-16 rounded-2xl object-cover mb-4 shadow-lg"
-              />
-            )}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
+            <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md text-white/95 text-xs sm:text-sm px-3.5 py-1.5 rounded-full border border-white/20 mb-5">
+              <Sparkles size={14} className="text-gold-300" />
+              <span>لیسه دولتی — ولسوالی ورس</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] text-white drop-shadow-lg">
               {schoolName}
             </h1>
+
             {fullName && (
-              <p className="text-white/80 mt-2 text-base sm:text-lg">{fullName}</p>
+              <p className="text-white/85 mt-3 text-base sm:text-lg lg:text-xl font-light">
+                {fullName}
+              </p>
             )}
-            <p className="text-white/70 mt-4 leading-relaxed text-sm sm:text-base">
-              {settings?.description ||
-                'مکتب قوم یاری یکی از مکاتب فعال در ولسوالی ورس، ولایت بامیان است که در خدمت دانش‌آموزان این منطقه می‌باشد.'}
+
+            <p className="text-white/80 mt-5 leading-relaxed text-sm sm:text-base max-w-xl">
+              {tagline}
             </p>
 
-            <div className="flex items-center gap-2 mt-5 text-sm text-white/80">
+            <div className="flex items-center gap-2 mt-5 text-sm text-white/70">
               <MapPin size={16} />
               <span>{address}</span>
             </div>
@@ -72,27 +83,27 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-3 mt-8">
               <Link
                 to="/about"
-                className="btn bg-white text-brand-700 hover:bg-white/90"
-                size="lg"
+                className="inline-flex items-center gap-2 bg-white text-brand-900 hover:bg-white/95 px-6 py-3 rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 <span>درباره مکتب</span>
                 <ArrowLeft size={18} />
               </Link>
               <Link
                 to="/contact"
-                className="btn border border-white/30 text-white hover:bg-white/10"
-                size="lg"
+                className="inline-flex items-center gap-2 border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm px-6 py-3 rounded-xl font-medium transition-all"
               >
                 <span>تماس با ما</span>
               </Link>
             </div>
           </div>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-cream to-transparent" />
       </section>
 
-      {/* ─── آمار سریع ─── */}
-      <section className="max-w-7xl mx-auto px-4 -mt-8 relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* ═══ آمار سریع ═══ */}
+      <section className="max-w-7xl mx-auto px-4 -mt-12 sm:-mt-16 relative z-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           <QuickStat
             icon={GraduationCap}
             label="صنف"
@@ -109,26 +120,26 @@ export default function HomePage() {
             icon={Bell}
             label="اعلان"
             value={announcements ? toFaNum(announcements.length) : '۰'}
-            color="blue"
+            color="accent"
           />
           <QuickStat
             icon={ImageIcon}
             label="عکس"
             value={gallery ? toFaNum(gallery.length) : '۰'}
-            color="purple"
+            color="info"
           />
         </div>
       </section>
 
-      {/* ─── اخبار اخیر ─── */}
+      {/* ═══ اخبار اخیر ═══ */}
       {recentAnnouncements.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 mt-12 sm:mt-16">
+        <section className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20">
           <SectionHeader
             title="آخرین اخبار و اعلانات"
             link="/news"
             linkLabel="مشاهده همه"
           />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
             {recentAnnouncements.map((a) => (
               <NewsCard key={a.id} announcement={a} />
             ))}
@@ -136,116 +147,217 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ─── گالری ─── */}
+      {/* ═══ گالری ═══ */}
       {previewPhotos.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 mt-12 sm:mt-16">
+        <section className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20">
           <SectionHeader
             title="گالری تصاویر"
             link="/photos"
             linkLabel="مشاهده همه"
           />
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {previewPhotos.map((p) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {previewPhotos.map((p, idx) => (
               <Link
                 key={p.id}
                 to="/photos"
-                className="aspect-square rounded-xl overflow-hidden bg-gray-100 group"
+                className={`group relative rounded-2xl overflow-hidden bg-gray-100 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 ${
+                  idx === 0
+                    ? 'sm:col-span-2 sm:row-span-2 aspect-square'
+                    : 'aspect-square'
+                }`}
               >
                 <img
                   src={p.image_url}
                   alt={p.title || ''}
                   loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
                   onError={(e) => {
                     e.target.style.display = 'none'
                   }}
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
+                {p.title && (
+                  <div className="absolute bottom-3 right-3 left-3 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition line-clamp-2">
+                    {p.title}
+                  </div>
+                )}
               </Link>
             ))}
           </div>
         </section>
       )}
 
-      {/* ─── CTA ─── */}
-      <section className="max-w-7xl mx-auto px-4 mt-12 sm:mt-16">
-        <div className="rounded-2xl bg-gradient-to-l from-gold-500 to-gold-600 text-white p-6 sm:p-10 text-center">
-          <h2 className="text-xl sm:text-2xl font-bold">
-            به مکتب ما بپیوندید
-          </h2>
-          <p className="text-white/90 mt-2 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-            برای ثبت‌نام فرزندتان یا هرگونه سؤال با ما تماس بگیرید
-          </p>
-          <Link
-            to="/contact"
-            className="inline-flex items-center gap-2 mt-5 bg-white text-gold-700 hover:bg-white/90 px-5 py-2.5 rounded-lg font-medium transition"
-          >
-            <span>تماس با ما</span>
-            <ArrowLeft size={16} />
-          </Link>
+      {/* ═══ دعوت به تماس ═══ */}
+      <section className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20">
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-l from-gold-500 via-gold-500 to-gold-600 shadow-hero">
+          <div className="absolute inset-0 opacity-10">
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  'radial-gradient(circle at 20% 30%, white 1.5px, transparent 1.5px), radial-gradient(circle at 70% 60%, white 1.5px, transparent 1.5px)',
+                backgroundSize: '40px 40px, 60px 60px',
+              }}
+            />
+          </div>
+
+          <div className="relative p-8 sm:p-12 lg:p-14 text-center">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-5">
+              <BookOpen size={28} className="text-white" />
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+              به مکتب ما بپیوندید
+            </h2>
+            <p className="text-white/90 mt-3 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed">
+              برای ثبت‌نام فرزندتان یا هرگونه سؤال، تیم ما آماده پاسخگویی است
+            </p>
+
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 mt-7 bg-white text-gold-700 hover:bg-white/95 px-7 py-3.5 rounded-xl font-medium transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            >
+              <span>تماس با ما</span>
+              <ArrowLeft size={18} />
+            </Link>
+          </div>
         </div>
       </section>
     </>
   )
 }
 
+/* ═══════════════════════════════════════
+   کارت آمار
+   ═══════════════════════════════════════ */
 function QuickStat({ icon: Icon, label, value, color }) {
-  const colors = {
-    brand: 'bg-brand-50 text-brand-700',
-    gold: 'bg-gold-50 text-gold-700',
-    blue: 'bg-blue-50 text-blue-700',
-    purple: 'bg-purple-50 text-purple-700',
+  const styles = {
+    brand: {
+      bar: 'from-brand-400 to-brand-600',
+      iconBg: 'bg-brand-50',
+      iconColor: 'text-brand-700',
+      label: 'text-brand-600',
+      ring: 'hover:ring-brand-200',
+    },
+    gold: {
+      bar: 'from-gold-400 to-gold-600',
+      iconBg: 'bg-gold-50',
+      iconColor: 'text-gold-700',
+      label: 'text-gold-700',
+      ring: 'hover:ring-gold-200',
+    },
+    accent: {
+      bar: 'from-accent-400 to-accent-600',
+      iconBg: 'bg-accent-50',
+      iconColor: 'text-accent-600',
+      label: 'text-accent-600',
+      ring: 'hover:ring-accent-100',
+    },
+    info: {
+      bar: 'from-sky-400 to-blue-600',
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-700',
+      label: 'text-blue-700',
+      ring: 'hover:ring-blue-200',
+    },
   }
+  const s = styles[color] || styles.brand
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 shadow-card">
+    <div
+      className={`relative bg-white rounded-2xl border border-gray-200/80 p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_32px_-8px_rgba(0,0,0,0.15)] hover:-translate-y-1 hover:ring-4 ${s.ring} transition-all duration-300 overflow-hidden`}
+    >
       <div
-        className={`w-10 h-10 rounded-xl ${colors[color]} flex items-center justify-center mb-3`}
-      >
-        <Icon size={20} />
+        className={`absolute top-0 right-0 left-0 h-1 bg-gradient-to-l ${s.bar}`}
+      />
+      <div
+        className={`absolute -top-8 -left-8 w-24 h-24 rounded-full ${s.iconBg} opacity-40 blur-2xl pointer-events-none`}
+      />
+
+      <div className="relative">
+        <div
+          className={`w-11 h-11 rounded-xl ${s.iconBg} flex items-center justify-center mb-3`}
+        >
+          <Icon size={20} className={s.iconColor} />
+        </div>
+
+        <p className="text-2xl sm:text-3xl font-bold text-gray-900 fa-num leading-none">
+          {value}
+        </p>
+
+        <p className={`text-xs sm:text-sm ${s.label} mt-1.5 font-medium`}>
+          {label}
+        </p>
       </div>
-      <p className="text-2xl sm:text-3xl font-bold text-gray-900 fa-num">
-        {value}
-      </p>
-      <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{label}</p>
     </div>
   )
 }
 
+/* ═══════════════════════════════════════
+   هدر بخش
+   ═══════════════════════════════════════ */
 function SectionHeader({ title, link, linkLabel }) {
   return (
-    <div className="flex items-center justify-between mb-4">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
-        {title}
-      </h2>
+    <div className="flex items-center justify-between mb-5">
+      <div>
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+          {title}
+        </h2>
+        <div className="w-12 h-1 bg-gradient-to-l from-brand-500 to-gold-500 rounded-full mt-2" />
+      </div>
       {link && (
         <Link
           to={link}
-          className="flex items-center gap-1 text-xs sm:text-sm text-brand-700 hover:text-brand-800 font-medium"
+          className="group flex items-center gap-1 text-xs sm:text-sm text-brand-700 hover:text-brand-800 font-medium"
         >
           <span>{linkLabel}</span>
-          <ArrowLeft size={14} />
+          <ArrowLeft
+            size={14}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
         </Link>
       )}
     </div>
   )
 }
 
+/* ═══════════════════════════════════════
+   کارت خبر
+   ═══════════════════════════════════════ */
 function NewsCard({ announcement }) {
   const PRIORITY_STYLE = {
-    normal: { label: 'عادی', badge: 'badge-gray' },
-    important: { label: 'مهم', badge: 'badge-warning' },
-    urgent: { label: 'فوری', badge: 'badge-danger' },
+    normal: {
+      label: 'عادی',
+      badge: 'badge-gray',
+      accent: 'from-gray-400 to-gray-500',
+    },
+    important: {
+      label: 'مهم',
+      badge: 'badge-warning',
+      accent: 'from-orange-400 to-orange-600',
+    },
+    urgent: {
+      label: 'فوری',
+      badge: 'badge-danger',
+      accent: 'from-red-400 to-red-600',
+    },
   }
   const style = PRIORITY_STYLE[announcement.priority] || PRIORITY_STYLE.normal
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 hover:shadow-card transition">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="group relative bg-white rounded-2xl border border-gray-100 p-5 shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+      <div
+        className={`absolute top-0 right-0 left-0 h-1 bg-gradient-to-l ${style.accent}`}
+      />
+
+      <div className="flex items-center gap-2 mb-3">
         <span className={`badge ${style.badge} text-[10px]`}>{style.label}</span>
         <span className="text-[10px] text-gray-400 mr-auto fa-num">
           {formatJalali(announcement.created_at, 'yyyy/MM/dd')}
         </span>
       </div>
-      <h3 className="font-bold text-gray-900 leading-snug line-clamp-2">
+
+      <h3 className="font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-brand-700 transition">
         {announcement.title}
       </h3>
       <p className="text-sm text-gray-500 mt-2 line-clamp-3 leading-relaxed">

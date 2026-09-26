@@ -3,11 +3,18 @@ import { X } from 'lucide-react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
 
-export default function SubjectForm({ open, subject, onClose, onSubmit, loading }) {
+export default function SubjectForm({
+  open,
+  subject,
+  defaultGrade,
+  onClose,
+  onSubmit,
+  loading,
+}) {
   const [name, setName] = useState('')
   const [code, setCode] = useState('')
   const [grade, setGrade] = useState(1)
-  const [nameError, setNameError] = useState('')
+  const [errors, setErrors] = useState({})
 
   useEffect(() => {
     if (subject) {
@@ -17,22 +24,26 @@ export default function SubjectForm({ open, subject, onClose, onSubmit, loading 
     } else {
       setName('')
       setCode('')
-      setGrade(1)
+      setGrade(defaultGrade || 1)
     }
-    setNameError('')
-  }, [subject, open])
+    setErrors({})
+  }, [subject, open, defaultGrade])
 
   if (!open) return null
 
   function handleSubmit(e) {
     e.preventDefault()
-    if (!name.trim()) {
-      setNameError('نام مضمون الزامی است')
+    const errs = {}
+    if (!name.trim()) errs.name = 'نام مضمون الزامی است'
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs)
       return
     }
+
     onSubmit({
       name: name.trim(),
-      code: code.trim(),
+      code: code.trim() || null,
       grade: Number(grade),
     })
   }
@@ -44,10 +55,9 @@ export default function SubjectForm({ open, subject, onClose, onSubmit, loading 
       onClick={onClose}
     >
       <div
-        className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl shadow-modal animate-slide-up max-h-[90vh] overflow-y-auto"
+        className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-3xl shadow-modal animate-slide-up max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* هدر */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-200 sticky top-0 bg-white z-10 sm:rounded-t-2xl">
           <h2 className="font-bold text-base sm:text-lg">
             {subject ? 'ویرایش مضمون' : 'افزودن مضمون جدید'}
@@ -61,31 +71,7 @@ export default function SubjectForm({ open, subject, onClose, onSubmit, loading 
           </button>
         </div>
 
-        {/* فرم */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
-          <Input
-            label="نام مضمون"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              if (nameError) setNameError('')
-            }}
-            required
-            autoFocus
-            placeholder="مثلاً: ریاضی"
-            error={nameError}
-          />
-
-          <Input
-            label="کد مضمون (اختیاری)"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            dir="ltr"
-            placeholder="MATH"
-            className="text-left"
-            hint="برای شناسایی سریع‌تر مضمون"
-          />
-
           <div>
             <label className="input-label">صنف</label>
             <select
@@ -100,24 +86,39 @@ export default function SubjectForm({ open, subject, onClose, onSubmit, loading 
                 </option>
               ))}
             </select>
+            <p className="input-hint">
+              مضمون برای کدام صنف ثبت می‌شود؟
+            </p>
           </div>
 
-          {/* دکمه‌ها */}
+          <Input
+            label="نام مضمون *"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value)
+              if (errors.name) setErrors((er) => ({ ...er, name: '' }))
+            }}
+            autoFocus
+            required
+            placeholder="مثلاً: ریاضی"
+            error={errors.name}
+          />
+
+          <Input
+            label="کد مضمون (اختیاری)"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            dir="ltr"
+            className="text-left"
+            placeholder="MATH"
+            hint="برای شناسایی سریع‌تر"
+          />
+
           <div className="flex gap-2 sm:gap-3 pt-2 pb-2">
-            <Button
-              type="submit"
-              disabled={loading}
-              className="flex-1"
-              size="lg"
-            >
+            <Button type="submit" disabled={loading} className="flex-1" size="lg">
               {loading ? 'در حال ذخیره...' : 'ذخیره'}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              size="lg"
-            >
+            <Button type="button" variant="outline" onClick={onClose} size="lg">
               انصراف
             </Button>
           </div>

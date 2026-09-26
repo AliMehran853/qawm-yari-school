@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { FileText, Search, X, Download, ExternalLink } from 'lucide-react'
+import { FileText, Search, X, Download } from 'lucide-react'
 import { useDocuments } from '../../documents/useDocuments'
 import { toFaNum } from '../../../utils/number'
 
@@ -153,7 +153,7 @@ export default function LibraryPage() {
           {filtered.map((doc) => (
             <div
               key={doc.id}
-              className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-card transition"
+              className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-card hover:-translate-y-0.5 transition-all duration-200"
             >
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-12 h-12 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center shrink-0">
@@ -186,24 +186,15 @@ export default function LibraryPage() {
                 </p>
               )}
 
-              <div className="flex items-center gap-2 mt-4">
-                <a
-                  href={doc.file_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-2 rounded-lg transition"
-                >
-                  <ExternalLink size={13} />
-                  <span>مشاهده</span>
-                </a>
-                <a
-                  href={doc.file_url}
-                  download
-                  className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition"
-                >
-                  <Download size={13} />
-                </a>
-              </div>
+              {/* فقط دکمه دانلود */}
+              <a
+                href={doc.file_url}
+                download
+                className="mt-4 inline-flex items-center justify-center gap-2 w-full text-sm font-medium text-white bg-gradient-to-l from-brand-600 to-brand-800 hover:from-brand-700 hover:to-brand-900 px-4 py-2.5 rounded-xl transition-all shadow-sm hover:shadow-md"
+              >
+                <Download size={16} />
+                <span>دانلود</span>
+              </a>
             </div>
           ))}
         </div>
