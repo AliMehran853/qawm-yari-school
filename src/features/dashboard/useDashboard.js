@@ -15,16 +15,16 @@ export function useStudentsByGrade() {
   })
 }
 
-export function useTodayAttendance() {
-  return useQuery({
-    queryKey: ['dashboard', 'today-attendance'],
-    queryFn: dashboardApi.todayAttendance,
-  })
-}
-
 export function useRecentAnnouncements(limit = 4) {
   return useQuery({
     queryKey: ['dashboard', 'recent-announcements', limit],
     queryFn: () => dashboardApi.recentAnnouncements(limit),
+  })
+}
+
+export function useRecentStudents(limit = 5) {
+  return useQuery({
+    queryKey: ['dashboard', 'recent-students', limit],
+    queryFn: () => dashboardApi.recentStudents(limit),
   })
 }

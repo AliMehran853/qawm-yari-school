@@ -1,4 +1,5 @@
-import { NavLink, useNavigate, Link } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom'
 import { LogOut, X, Menu, Home } from 'lucide-react'
 
 import { useAuthStore } from '../store/authStore'
@@ -17,16 +18,46 @@ export default function Layout({ children }) {
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen)
   const { data: settings } = useSettings()
   const navigate = useNavigate()
+  const location = useLocation()
   const isOnline = useOnlineStatus()
+
+  const desktopNavRef = useRef(null)
+  const mobileNavRef = useRef(null)
 
   const menu = getMenuByRole(profile?.role)
   const roleLabel = ROLE_LABELS[profile?.role] || ''
 
   const schoolName = settings?.school_name || 'مکتب قوم یاری'
-  const location =
+  const locationText =
     settings?.district && settings?.province
       ? `${settings.district}، ${settings.province}`
       : 'ولسوالی ورس، بامیان'
+
+  // ─── نگه‌داشتن موقعیت اسکرول سایدبار ───
+  useEffect(() => {
+    if (desktopNavRef.current) {
+      const saved = sessionStorage.getItem('sidebar-scroll-desktop')
+      if (saved) desktopNavRef.current.scrollTop = parseInt(saved, 10)
+    }
+    if (mobileNavRef.current) {
+      const saved = sessionStorage.getItem('sidebar-scroll-mobile')
+      if (saved) mobileNavRef.current.scrollTop = parseInt(saved, 10)
+    }
+  }, [location.pathname])
+
+  function handleDesktopScroll(e) {
+    sessionStorage.setItem(
+      'sidebar-scroll-desktop',
+      e.target.scrollTop.toString()
+    )
+  }
+
+  function handleMobileScroll(e) {
+    sessionStorage.setItem(
+      'sidebar-scroll-mobile',
+      e.target.scrollTop.toString()
+    )
+  }
 
   async function handleLogout() {
     await logout()
@@ -35,15 +66,10 @@ export default function Layout({ children }) {
 
   return (
     <div className="min-h-screen bg-cream" dir="rtl">
-      {/* ─── بنر آفلاین ─── */}
       <OfflineBanner isOnline={isOnline} />
 
       {/* ─── Topbar موبایل ─── */}
-      <header
-        className={`lg:hidden sticky z-30 bg-brand-700 text-white px-4 py-3 flex items-center justify-between shadow-md ${
-          isOnline ? 'top-0' : 'top-10'
-        }`}
-      >
+      <header className="lg:hidden sticky top-0 z-30 bg-brand-700 text-white px-4 py-3 flex items-center justify-between shadow-md">
         <button
           onClick={() => setSidebarOpen(true)}
           className="p-2 rounded-lg hover:bg-brand-800"
@@ -55,13 +81,12 @@ export default function Layout({ children }) {
           <h1 className="font-bold text-base leading-tight truncate">
             {schoolName}
           </h1>
-          <p className="text-[10px] text-white/70 truncate">{location}</p>
+          <p className="text-[10px] text-white/70 truncate">{locationText}</p>
         </div>
         <Link
           to="/"
           className="p-2 rounded-lg hover:bg-brand-800"
           aria-label="سایت عمومی"
-          title="بازگشت به سایت"
         >
           <Home size={20} />
         </Link>
@@ -69,7 +94,7 @@ export default function Layout({ children }) {
 
       {/* ─── Sidebar دسکتاپ ─── */}
       <aside className="hidden lg:flex fixed top-0 right-0 h-screen w-64 bg-white border-l border-gray-200 flex-col z-20">
-        <div className="p-5 border-b border-gray-200">
+        <div className="p-5 border-b border-gray-200 shrink-0">
           <div className="flex items-center gap-3">
             {settings?.logo_url ? (
               <img
@@ -86,18 +111,24 @@ export default function Layout({ children }) {
               <h1 className="text-sm font-bold text-brand-700 truncate">
                 {schoolName}
               </h1>
-              <p className="text-[10px] text-gray-500 truncate">{location}</p>
+              <p className="text-[10px] text-gray-500 truncate">
+                {locationText}
+              </p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-3">
+        <nav
+          ref={desktopNavRef}
+          onScroll={handleDesktopScroll}
+          className="flex-1 overflow-y-auto p-3"
+        >
           {menu.map((item) => (
             <NavItem key={item.to} item={item} />
           ))}
         </nav>
 
-        <div className="border-t border-gray-200 p-3 space-y-1">
+        <div className="border-t border-gray-200 p-3 space-y-1 shrink-0">
           <div className="px-3 py-2 mb-1">
             <p className="text-sm font-medium text-gray-900 truncate">
               {profile?.full_name}
@@ -131,7 +162,7 @@ export default function Layout({ children }) {
             onClick={() => setSidebarOpen(false)}
           />
           <aside className="lg:hidden fixed top-0 right-0 h-screen w-72 bg-white z-50 flex flex-col shadow-2xl">
-            <div className="p-4 border-b flex items-center justify-between">
+            <div className="p-4 border-b flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 {settings?.logo_url ? (
                   <img
@@ -149,7 +180,7 @@ export default function Layout({ children }) {
                     {schoolName}
                   </h1>
                   <p className="text-[10px] text-gray-500 truncate">
-                    {location}
+                    {locationText}
                   </p>
                 </div>
               </div>
@@ -162,7 +193,11 @@ export default function Layout({ children }) {
               </button>
             </div>
 
-            <nav className="flex-1 overflow-y-auto p-3">
+            <nav
+              ref={mobileNavRef}
+              onScroll={handleMobileScroll}
+              className="flex-1 overflow-y-auto p-3"
+            >
               {menu.map((item) => (
                 <NavItem
                   key={item.to}
@@ -172,7 +207,7 @@ export default function Layout({ children }) {
               ))}
             </nav>
 
-            <div className="border-t p-3 space-y-1">
+            <div className="border-t p-3 space-y-1 shrink-0">
               <div className="px-3 py-2 mb-1">
                 <p className="text-sm font-medium truncate">
                   {profile?.full_name}
@@ -202,9 +237,7 @@ export default function Layout({ children }) {
       )}
 
       {/* ─── محتوا ─── */}
-      <main
-        className={`lg:mr-64 min-h-screen ${isOnline ? '' : 'pt-10 lg:pt-0'}`}
-      >
+      <main className="lg:mr-64 min-h-screen">
         <div className="p-4 lg:p-8 max-w-7xl mx-auto">{children}</div>
       </main>
     </div>

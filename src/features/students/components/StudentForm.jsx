@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
 import ImageUploader from '../../../components/ui/ImageUploader'
+import { CURRENT_YEAR } from '../../../lib/constants'
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'فعال' },
@@ -14,6 +15,7 @@ const STATUS_OPTIONS = [
 export default function StudentForm({
   open,
   student,
+  defaultGrade,
   onClose,
   onSubmit,
   loading,
@@ -24,7 +26,7 @@ export default function StudentForm({
     grandfather_name: '',
     dob: '',
     grade: 1,
-    admission_year: 1404,
+    admission_year: CURRENT_YEAR,
     phone: '',
     whatsapp: '',
     address: '',
@@ -42,7 +44,7 @@ export default function StudentForm({
         grandfather_name: student.grandfather_name || '',
         dob: student.dob || '',
         grade: student.grade || 1,
-        admission_year: student.admission_year || 1404,
+        admission_year: student.admission_year || CURRENT_YEAR,
         phone: student.phone || '',
         whatsapp: student.whatsapp || '',
         address: student.address || '',
@@ -56,8 +58,8 @@ export default function StudentForm({
         father_name: '',
         grandfather_name: '',
         dob: '',
-        grade: 1,
-        admission_year: 1404,
+        grade: defaultGrade || 1,
+        admission_year: CURRENT_YEAR,
         phone: '',
         whatsapp: '',
         address: '',
@@ -67,7 +69,7 @@ export default function StudentForm({
       })
     }
     setErrors({})
-  }, [student, open])
+  }, [student, open, defaultGrade])
 
   if (!open) return null
 
@@ -80,6 +82,9 @@ export default function StudentForm({
     e.preventDefault()
     const errs = {}
     if (!form.name.trim()) errs.name = 'نام الزامی است'
+    if (!form.father_name.trim()) errs.father_name = 'نام پدر الزامی است'
+    if (!form.grandfather_name.trim())
+      errs.grandfather_name = 'نام پدرکلان الزامی است'
     if (!form.grade) errs.grade = 'صنف الزامی است'
 
     if (Object.keys(errs).length > 0) {
@@ -89,8 +94,8 @@ export default function StudentForm({
 
     onSubmit({
       name: form.name.trim(),
-      father_name: form.father_name.trim() || null,
-      grandfather_name: form.grandfather_name.trim() || null,
+      father_name: form.father_name.trim(),
+      grandfather_name: form.grandfather_name.trim(),
       dob: form.dob.trim() || null,
       grade: Number(form.grade),
       admission_year: Number(form.admission_year) || null,
@@ -138,19 +143,25 @@ export default function StudentForm({
           />
 
           <Input
-            label="نام پدر"
+            label="نام پدر *"
             value={form.father_name}
             onChange={(e) => set('father_name', e.target.value)}
+            required
             placeholder="مثلاً: محمد"
+            error={errors.father_name}
           />
 
           <Input
-            label="نام پدرکلان"
+            label="نام پدرکلان *"
             value={form.grandfather_name}
             onChange={(e) => set('grandfather_name', e.target.value)}
+            required
             placeholder="مثلاً: عبدالله"
+            hint="برای تفکیک دانش‌آموزان هم‌نام ضروری است"
+            error={errors.grandfather_name}
           />
 
+          {/* ─── صنف + سال شمولیت ─── */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="input-label">صنف *</label>
@@ -168,13 +179,14 @@ export default function StudentForm({
               </select>
             </div>
             <Input
-              label="سال شمولیت"
+              label="سال ورود به مکتب"
               type="number"
               value={form.admission_year}
               onChange={(e) => set('admission_year', e.target.value)}
               dir="ltr"
-              className="text-left"
+              className="text-left fa-num"
               placeholder="1404"
+              hint="سالی که اولین بار وارد مکتب شد"
             />
           </div>
 

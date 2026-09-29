@@ -1,5 +1,10 @@
-import { useState, useMemo } from 'react'
-import { Plus, Image as ImageIcon } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import {
+  Plus,
+  Image as ImageIcon,
+  ChevronRight,
+  ChevronLeft,
+} from 'lucide-react'
 
 import PageWrapper from '../../../app/PageWrapper'
 import Button from '../../../components/ui/Button'
@@ -9,10 +14,12 @@ import GalleryGrid from '../components/GalleryGrid'
 import Lightbox from '../components/Lightbox'
 import {
   useGallery,
+  useGalleryCounts,
   useCreateGalleryItem,
   useUpdateGalleryItem,
   useDeleteGalleryItem,
 } from '../useGallery'
+import { PAGE_SIZE } from '../galleryApi'
 import { toFaNum } from '../../../utils/number'
 
 const CATEGORIES = [
@@ -26,24 +33,31 @@ const CATEGORIES = [
 
 export default function GalleryPage() {
   const [filter, setFilter] = useState(null)
+  const [page, setPage] = useState(0)
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [lightboxIndex, setLightboxIndex] = useState(null)
 
-  const { data: allItems } = useGallery(null)
-  const { data: filtered, isLoading } = useGallery(filter)
+  const { data, isLoading, isFetching } = useGallery({ category: filter, page })
+  const { data: counts } = useGalleryCounts()
   const createMut = useCreateGalleryItem()
   const updateMut = useUpdateGalleryItem()
   const deleteMut = useDeleteGalleryItem()
 
-  const counts = useMemo(() => {
-    if (!allItems) return {}
-    const c = { all: allItems.length }
-    allItems.forEach((i) => {
-      c[i.category] = (c[i.category] || 0) + 1
-    })
-    return c
-  }, [allItems])
+  const items = data?.items || []
+  const total = data?.total || 0
+  const totalPages = Math.ceil(total / PAGE_SIZE)
+
+  // ─── تغییر فیلتر → برگرد به صفحه اول ───
+  useEffect(() => {
+    setPage(0)
+  }, [filter])
+
+  // ─── اسکرول به بالا هنگام تغییر صفحه ───
+  function goToPage(newPage) {
+    setPage(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   function handleAdd() {
     setEditing(null)
@@ -62,25 +76,32 @@ export default function GalleryPage() {
       await createMut.mutateAsync(values)
     }
     setFormOpen(false)
+    // بعد از افزودن، به صفحه اول برگرد
+    if (!editing) setPage(0)
   }
 
   async function handleDelete(item) {
     if (!confirm('این عکس حذف شود؟')) return
     try {
       await deleteMut.mutateAsync(item.id)
+      // اگر آخرین عکس صفحه بود، برگرد به صفحه قبلی
+      if (items.length === 1 && page > 0) {
+        setPage(page - 1)
+      }
     } catch (e) {}
   }
 
   function handleNavigate(direction) {
-    if (lightboxIndex === null || !filtered) return
+    if (lightboxIndex === null || !items) return
     let next = lightboxIndex + direction
-    if (next < 0) next = filtered.length - 1
-    if (next >= filtered.length) next = 0
+    if (next < 0) next = items.length - 1
+    if (next >= items.length) next = 0
     setLightboxIndex(next)
   }
 
   return (
     <PageWrapper>
+      {/* ═══ هدر ═══ */}
       <div className="flex items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
         <div className="min-w-0 flex-1">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-brand-700">
@@ -96,11 +117,13 @@ export default function GalleryPage() {
         </Button>
       </div>
 
-      {allItems?.length > 0 && (
+      {/* ═══ فیلتر ═══ */}
+      {counts && counts.all > 0 && (
         <div className="mb-4 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto">
           <div className="flex gap-2 min-w-max sm:min-w-0 sm:flex-wrap">
             {CATEGORIES.map((c) => {
-              const count = c.value === null ? counts.all : counts[c.value] || 0
+              const count =
+                c.value === null ? counts.all : counts[c.value] || 0
               if (c.value !== null && count === 0) return null
               return (
                 <button
@@ -123,6 +146,7 @@ export default function GalleryPage() {
         </div>
       )}
 
+      {/* ═══ محتوا ═══ */}
       {isLoading ? (
         <div className="py-16 text-center">
           <div
@@ -131,7 +155,7 @@ export default function GalleryPage() {
           />
           <p className="text-sm text-gray-500 mt-3">در حال بارگذاری...</p>
         </div>
-      ) : !allItems || allItems.length === 0 ? (
+      ) : !counts || counts.all === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <EmptyState
             icon={ImageIcon}
@@ -145,33 +169,111 @@ export default function GalleryPage() {
             }
           />
         </div>
+      ) : items.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <EmptyState
+            icon={ImageIcon}
+            title="عکسی در این دسته نیست"
+            description="فیلتر دیگری انتخاب کن"
+          />
+        </div>
       ) : (
-        <GalleryGrid
-          items={filtered || []}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onItemClick={setLightboxIndex}
-        />
+        <>
+          <div
+            className={`transition-opacity ${
+              isFetching ? 'opacity-60' : 'opacity-100'
+            }`}
+          >
+            <GalleryGrid
+              items={items}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onItemClick={setLightboxIndex}
+            />
+          </div>
+
+          {/* ═══ تعداد و صفحه ═══ */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-6">
+            <p className="text-xs text-gray-500 text-center sm:text-right fa-num">
+              نمایش {toFaNum(items.length)} از {toFaNum(total)} عکس
+              {totalPages > 1 && (
+                <>
+                  {' '}
+                  — صفحه {toFaNum(page + 1)} از {toFaNum(totalPages)}
+                </>
+              )}
+            </p>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => goToPage(page - 1)}
+                  disabled={page === 0}
+                  className="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:border-brand-300 hover:bg-brand-50 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:bg-white transition"
+                  aria-label="صفحه قبل"
+                >
+                  <ChevronRight size={16} className="text-gray-600" />
+                </button>
+
+                {/* شماره صفحه‌ها */}
+                <div className="flex items-center gap-1">
+                  {getPageNumbers(page, totalPages).map((p, idx) => {
+                    if (p === '...') {
+                      return (
+                        <span
+                          key={`dots-${idx}`}
+                          className="w-9 h-9 flex items-center justify-center text-gray-400 text-sm"
+                        >
+                          …
+                        </span>
+                      )
+                    }
+                    const isActive = p === page
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => goToPage(p)}
+                        className={`min-w-[36px] h-9 px-2 rounded-lg text-sm font-medium transition fa-num ${
+                          isActive
+                            ? 'bg-brand-700 text-white shadow-sm'
+                            : 'border border-gray-200 bg-white text-gray-700 hover:border-brand-300 hover:bg-brand-50'
+                        }`}
+                      >
+                        {toFaNum(p + 1)}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <button
+                  onClick={() => goToPage(page + 1)}
+                  disabled={page >= totalPages - 1}
+                  className="w-9 h-9 rounded-lg border border-gray-200 bg-white hover:border-brand-300 hover:bg-brand-50 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:bg-white transition"
+                  aria-label="صفحه بعد"
+                >
+                  <ChevronLeft size={16} className="text-gray-600" />
+                </button>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
-      {filtered?.length > 0 && (
-        <p className="text-xs text-gray-400 text-center mt-4">
-          {toFaNum(filtered.length)} عکس از {toFaNum(allItems.length)}
-        </p>
-      )}
-
+      {/* ═══ فرم ═══ */}
       <GalleryForm
         open={formOpen}
         item={editing}
-        totalCount={allItems?.length || 0}
+        totalCount={counts?.all || 0}
         onClose={() => setFormOpen(false)}
         onSubmit={handleSubmit}
         loading={createMut.isPending || updateMut.isPending}
       />
 
-      {lightboxIndex !== null && filtered && (
+      {/* ═══ Lightbox ═══ */}
+      {lightboxIndex !== null && items && (
         <Lightbox
-          items={filtered}
+          items={items}
           currentIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onNavigate={handleNavigate}
@@ -179,4 +281,32 @@ export default function GalleryPage() {
       )}
     </PageWrapper>
   )
+}
+
+/* ═══════════════════════════════════════
+   محاسبه شماره‌های صفحه (با ...)
+   ═══════════════════════════════════════ */
+function getPageNumbers(current, total) {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i)
+  }
+
+  const pages = []
+  pages.push(0)
+
+  if (current > 2) pages.push('...')
+
+  for (
+    let i = Math.max(1, current - 1);
+    i <= Math.min(total - 2, current + 1);
+    i++
+  ) {
+    pages.push(i)
+  }
+
+  if (current < total - 3) pages.push('...')
+
+  pages.push(total - 1)
+
+  return pages
 }

@@ -7,7 +7,7 @@ export const gradesApi = {
     // ۱. شاگردان این صنف
     const { data: students, error: sErr } = await supabase
       .from('students')
-      .select('id, name, father_name, student_code, photo_url')
+      .select('id, name, father_name, grandfather_name, student_code, photo_url')
       .eq('grade', grade)
       .eq('status', 'active')
       .order('name')
@@ -39,7 +39,6 @@ export const gradesApi = {
 
   // ذخیره گروهی نمرات
   async saveBulk({ grade, subjectId, teacherId, round, year = CURRENT_YEAR, scores }) {
-    // scores: [{ student_id, score }]
     const rows = scores
       .filter((s) => s.score !== '' && s.score !== null && s.score !== undefined)
       .map((s) => ({
@@ -54,7 +53,6 @@ export const gradesApi = {
 
     if (rows.length === 0) return []
 
-    // upsert: اگر بود update، اگر نبود insert
     const { data, error } = await supabase
       .from('grades')
       .upsert(rows, {
@@ -68,7 +66,6 @@ export const gradesApi = {
 
   // کارنامه یک شاگرد
   async getReportCard(studentId, year = CURRENT_YEAR) {
-    // ۱. اطلاعات شاگرد
     const { data: student, error: sErr } = await supabase
       .from('students')
       .select('*')
@@ -76,7 +73,6 @@ export const gradesApi = {
       .single()
     if (sErr) throw sErr
 
-    // ۲. همه مضامین صنف او
     const { data: subjects, error: subErr } = await supabase
       .from('subjects')
       .select('*')
@@ -85,7 +81,6 @@ export const gradesApi = {
       .order('name')
     if (subErr) throw subErr
 
-    // ۳. نمرات شاگرد
     const { data: grades, error: gErr } = await supabase
       .from('grades')
       .select('*')
@@ -93,7 +88,6 @@ export const gradesApi = {
       .eq('year', year)
     if (gErr) throw gErr
 
-    // ۴. ترکیب: برای هر مضمون، نمرات دور اول و نهایی
     return {
       student,
       rows: subjects.map((sub) => {
@@ -131,18 +125,18 @@ export const gradesApi = {
       .eq('year', year)
     if (gErr) throw gErr
 
-    // گروه‌بندی بر اساس شاگرد و مضمون
     const byStudent = {}
     grades.forEach((g) => {
       if (!byStudent[g.student_id]) byStudent[g.student_id] = {}
       if (!byStudent[g.student_id][g.subject_id]) {
         byStudent[g.student_id][g.subject_id] = { first: 0, final: 0 }
       }
-      if (g.round === 'first') byStudent[g.student_id][g.subject_id].first = Number(g.score) || 0
-      else byStudent[g.student_id][g.subject_id].final = Number(g.score) || 0
+      if (g.round === 'first')
+        byStudent[g.student_id][g.subject_id].first = Number(g.score) || 0
+      else
+        byStudent[g.student_id][g.subject_id].final = Number(g.score) || 0
     })
 
-    // معدل هر شاگرد
     const averages = {}
     Object.entries(byStudent).forEach(([sid, subjects]) => {
       const totals = Object.values(subjects).map((s) => s.first + s.final)

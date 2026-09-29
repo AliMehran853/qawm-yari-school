@@ -1,17 +1,34 @@
-import { Pencil, Trash2, Phone, Calendar, MessageCircle } from 'lucide-react'
+import {
+  Pencil,
+  Trash2,
+  Phone,
+  Calendar,
+  MessageCircle,
+  Eye,
+} from 'lucide-react'
 import { toFaNum } from '../../../utils/number'
 import { normalizeWhatsApp, openWhatsApp } from '../../../utils/whatsapp'
 
-export default function TeacherList({ teachers, onEdit, onDelete }) {
+const POSITION_BADGE = {
+  principal: { label: 'آمر', style: 'badge-gold' },
+  head_teacher: { label: 'سرمعلم', style: 'badge-brand' },
+  teacher: null,
+  staff: { label: 'ملازم', style: 'badge-gray' },
+}
+
+export default function TeacherList({
+  teachers,
+  onView,
+  onEdit,
+  onDelete,
+}) {
   if (!teachers || teachers.length === 0) return null
 
-  function handleWhatsApp(teacher) {
+  function handleWhatsApp(teacher, e) {
+    e.stopPropagation()
     const number = teacher.whatsapp || teacher.phone
     const normalized = normalizeWhatsApp(number)
-    if (!normalized) {
-      alert('شماره واتساپ این معلم ثبت نشده است')
-      return
-    }
+    if (!normalized) return
     openWhatsApp(number, `سلام استاد ${teacher.name} عزیز.`)
   }
 
@@ -25,8 +42,13 @@ export default function TeacherList({ teachers, onEdit, onDelete }) {
       <div className="lg:hidden divide-y divide-gray-100">
         {teachers.map((t) => {
           const canWA = hasWhatsApp(t)
+          const posBadge = POSITION_BADGE[t.position]
           return (
-            <div key={t.id} className="p-4 flex items-center gap-3">
+            <div
+              key={t.id}
+              onClick={() => onView(t)}
+              className="p-4 flex items-center gap-3 hover:bg-gray-50 active:bg-gray-100 transition cursor-pointer"
+            >
               <div className="w-12 h-12 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center shrink-0 overflow-hidden">
                 {t.photo_url ? (
                   <img
@@ -43,9 +65,16 @@ export default function TeacherList({ teachers, onEdit, onDelete }) {
               </div>
 
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-900 truncate">
-                  {t.name}
-                </h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-medium text-gray-900 truncate">
+                    {t.name}
+                  </h3>
+                  {posBadge && (
+                    <span className={`badge ${posBadge.style} text-[9px]`}>
+                      {posBadge.label}
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 flex-wrap">
                   {t.phone && (
                     <span className="flex items-center gap-1" dir="ltr">
@@ -56,7 +85,7 @@ export default function TeacherList({ teachers, onEdit, onDelete }) {
                   {t.hire_date && (
                     <span className="flex items-center gap-1">
                       <Calendar size={12} />
-                      <span>{t.hire_date}</span>
+                      <span className="fa-num">{t.hire_date}</span>
                     </span>
                   )}
                 </div>
@@ -65,7 +94,7 @@ export default function TeacherList({ teachers, onEdit, onDelete }) {
               <div className="flex items-center gap-1 shrink-0">
                 {canWA && (
                   <button
-                    onClick={() => handleWhatsApp(t)}
+                    onClick={(e) => handleWhatsApp(t, e)}
                     className="p-2 hover:bg-green-50 text-green-600 rounded-lg transition"
                     aria-label="واتساپ"
                   >
@@ -73,14 +102,20 @@ export default function TeacherList({ teachers, onEdit, onDelete }) {
                   </button>
                 )}
                 <button
-                  onClick={() => onEdit(t)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEdit(t)
+                  }}
                   className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition"
                   aria-label="ویرایش"
                 >
                   <Pencil size={16} />
                 </button>
                 <button
-                  onClick={() => onDelete(t)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete(t)
+                  }}
                   className="p-2 hover:bg-red-50 text-danger rounded-lg transition"
                   aria-label="حذف"
                 >
@@ -97,21 +132,27 @@ export default function TeacherList({ teachers, onEdit, onDelete }) {
         <table className="table">
           <thead>
             <tr>
-              <th className="w-16"></th>
-              <th>نام و تخلص</th>
-              <th>شماره تماس</th>
-              <th>تاریخ استخدام</th>
-              <th>آدرس</th>
+              <th className="w-16 text-center">عکس</th>
+              <th className="text-center">نام و تخلص</th>
+              <th className="text-center">سمت</th>
+              <th className="text-center">شماره تماس</th>
+              <th className="text-center">تاریخ استخدام</th>
+              <th className="text-center">آدرس</th>
               <th className="w-32 text-center">عملیات</th>
             </tr>
           </thead>
           <tbody>
             {teachers.map((t) => {
               const canWA = hasWhatsApp(t)
+              const posBadge = POSITION_BADGE[t.position]
               return (
-                <tr key={t.id}>
-                  <td>
-                    <div className="w-10 h-10 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center overflow-hidden">
+                <tr
+                  key={t.id}
+                  onClick={() => onView(t)}
+                  className="cursor-pointer hover:bg-gray-50"
+                >
+                  <td className="text-center">
+                    <div className="w-10 h-10 mx-auto rounded-full bg-brand-50 text-brand-700 flex items-center justify-center overflow-hidden">
                       {t.photo_url ? (
                         <img
                           src={t.photo_url}
@@ -126,36 +167,64 @@ export default function TeacherList({ teachers, onEdit, onDelete }) {
                       )}
                     </div>
                   </td>
-                  <td className="font-medium text-gray-900">{t.name}</td>
-                  <td className="fa-num" dir="ltr">
-                    {t.phone ? toFaNum(t.phone) : '—'}
+                  <td className="font-medium text-gray-900 text-center">
+                    {t.name}
                   </td>
-                  <td className="fa-num">{t.hire_date || '—'}</td>
-                  <td className="text-gray-500 text-sm truncate max-w-[200px]">
+                  <td className="text-center">
+                    {posBadge ? (
+                      <span className={`badge ${posBadge.style}`}>
+                        {posBadge.label}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-xs">معلم</span>
+                    )}
+                  </td>
+                  <td className="text-center">
+                    {t.phone ? (
+                      <span className="fa-num inline-block" dir="ltr">
+                        {toFaNum(t.phone)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </td>
+                  <td className="fa-num text-center">
+                    {t.hire_date || '—'}
+                  </td>
+                  <td className="text-gray-500 text-sm text-center">
                     {t.address || '—'}
                   </td>
                   <td>
                     <div className="flex items-center justify-center gap-1">
                       {canWA && (
                         <button
-                          onClick={() => handleWhatsApp(t)}
+                          onClick={(e) => handleWhatsApp(t, e)}
                           className="p-2 hover:bg-green-50 text-green-600 rounded-lg transition"
                           aria-label="واتساپ"
+                          title="واتساپ"
                         >
                           <MessageCircle size={15} />
                         </button>
                       )}
                       <button
-                        onClick={() => onEdit(t)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onEdit(t)
+                        }}
                         className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition"
                         aria-label="ویرایش"
+                        title="ویرایش"
                       >
                         <Pencil size={15} />
                       </button>
                       <button
-                        onClick={() => onDelete(t)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onDelete(t)
+                        }}
                         className="p-2 hover:bg-red-50 text-danger rounded-lg transition"
                         aria-label="حذف"
+                        title="حذف"
                       >
                         <Trash2 size={15} />
                       </button>

@@ -27,8 +27,6 @@ import StudentsPage from './features/students/pages/StudentsPage'
 import AssignmentsPage from './features/assignments/pages/AssignmentsPage'
 import GradesEntryPage from './features/grades/pages/GradesEntryPage'
 import ReportCardPage from './features/grades/pages/ReportCardPage'
-import AttendanceEntryPage from './features/attendance/pages/AttendanceEntryPage'
-import AttendanceReportPage from './features/attendance/pages/AttendanceReportPage'
 import AnnouncementsPage from './features/announcements/pages/AnnouncementsPage'
 import GalleryPage from './features/gallery/pages/GalleryPage'
 import DocumentsPage from './features/documents/pages/DocumentsPage'
@@ -64,8 +62,6 @@ function AppRoutes() {
         <Route path="/panel/assignments" element={<ProtectedRoute allow={['admin']}><AssignmentsPage /></ProtectedRoute>} />
         <Route path="/panel/grades-entry" element={<ProtectedRoute allow={['admin']}><GradesEntryPage /></ProtectedRoute>} />
         <Route path="/panel/report-card" element={<ProtectedRoute allow={['admin']}><ReportCardPage /></ProtectedRoute>} />
-        <Route path="/panel/attendance" element={<ProtectedRoute allow={['admin']}><AttendanceEntryPage /></ProtectedRoute>} />
-        <Route path="/panel/attendance-report" element={<ProtectedRoute allow={['admin']}><AttendanceReportPage /></ProtectedRoute>} />
         <Route path="/panel/announcements" element={<ProtectedRoute><AnnouncementsPage /></ProtectedRoute>} />
         <Route path="/panel/gallery" element={<ProtectedRoute allow={['admin']}><GalleryPage /></ProtectedRoute>} />
         <Route path="/panel/documents" element={<ProtectedRoute allow={['admin']}><DocumentsPage /></ProtectedRoute>} />

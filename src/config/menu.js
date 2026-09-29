@@ -1,11 +1,9 @@
-
 import {
   LayoutDashboard,
   Users,
   GraduationCap,
   School,
   BookOpen,
-  CalendarCheck,
   Bell,
   Settings,
   Image,
@@ -14,7 +12,6 @@ import {
   UserCheck,
   PenSquare,
   Award,
-  CalendarDays,
   UserCircle,
   Database,
 } from 'lucide-react'
@@ -36,8 +33,6 @@ const ADMIN_MENU = [
   { to: '/panel/assignments', label: 'تعیین معلم', icon: UserCheck },
   { to: '/panel/grades-entry', label: 'ورود نمرات', icon: PenSquare },
   { to: '/panel/report-card', label: 'کارنامه', icon: Award },
-  { to: '/panel/attendance', label: 'ثبت حضور', icon: CalendarCheck },
-  { to: '/panel/attendance-report', label: 'گزارش حضور', icon: CalendarDays },
   { to: '/panel/announcements', label: 'اعلانات', icon: Bell },
   { to: '/panel/gallery', label: 'گالری', icon: Image },
   { to: '/panel/documents', label: 'اسناد', icon: FileText },
@@ -52,14 +47,12 @@ const TEACHER_MENU = [
   DASHBOARD,
   { to: '/panel/my-classes', label: 'صنف‌های من', icon: School },
   { to: '/panel/grades', label: 'نمرات', icon: BookOpen },
-  { to: '/panel/attendance', label: 'حضور', icon: CalendarCheck },
   { to: '/panel/announcements', label: 'اعلانات', icon: Bell },
 ]
 
 const STUDENT_MENU = [
   DASHBOARD,
   { to: '/panel/my-grades', label: 'کارنامه من', icon: BookOpen },
-  { to: '/panel/my-attendance', label: 'حضور من', icon: CalendarCheck },
   { to: '/panel/announcements', label: 'اعلانات', icon: Bell },
 ]
 

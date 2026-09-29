@@ -5,12 +5,13 @@ export default function ScrollToTop() {
   const { pathname } = useLocation()
 
   useEffect(() => {
-    // هنگام تغییر مسیر، به بالای صفحه اسکرول کن
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'instant',
-    })
+    // فقط محتوای اصلی را به بالا برگردان
+    const main = document.querySelector('main')
+    if (main) {
+      main.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    }
+    // و window هم برای اطمینان
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
   }, [pathname])
 
   return null

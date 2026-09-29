@@ -6,7 +6,7 @@ export const ROLES = {
 }
 
 export const ROLE_LABELS = {
-  [ROLES.ADMIN]: 'مدیر',
+  [ROLES.ADMIN]: 'آمر',
   [ROLES.TEACHER]: 'معلم',
   [ROLES.STUDENT]: 'دانش‌آموز',
   [ROLES.PARENT]: 'والد',

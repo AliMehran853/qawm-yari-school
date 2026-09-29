@@ -17,20 +17,15 @@ export default function StaffPage() {
 
   const schoolName = settings?.school_name || 'مکتب قوم یاری'
 
-  // ─── جدا کردن بر اساس سمت ───
   const principal = teachers?.find((t) => t.position === 'principal')
   const headTeacher = teachers?.find((t) => t.position === 'head_teacher')
 
-  // لیست معلمان: همه کسانی که تدریس می‌کنند (مدیر، سرمعلم، معلمان)
   const teachingStaff = (teachers || []).filter(
     (t) =>
       t.position === 'teacher' ||
-      t.position === 'principal' ||
-      t.position === 'head_teacher' ||
-      !t.position
+      (!t.position && t.position !== 'principal')
   )
 
-  // ملازمان و خدمه
   const staffMembers = (teachers || []).filter((t) => t.position === 'staff')
 
   function handleWhatsApp(t) {
@@ -74,40 +69,54 @@ export default function StaffPage() {
         </div>
       ) : (
         <>
-          {/* ═══ ۱. مدیر مکتب ═══ */}
+          {/* ═══ ۱. آمر ═══ */}
           {principal && (
             <section className="mb-10 sm:mb-14">
-              <SectionLabel icon={Crown} text="مدیر مکتب" color="gold" />
-              <FeaturedCard
-                person={principal}
-                badge="مدیر مکتب"
-                badgeIcon={Crown}
-                variant="principal"
-                onWhatsApp={() => handleWhatsApp(principal)}
-              />
+              <div className="max-w-md mx-auto">
+                <SectionLabel
+                  icon={Crown}
+                  text="آمر مکتب"
+                  color="gold"
+                  centered
+                />
+                <FeaturedCard
+                  person={principal}
+                  badge="آمر مکتب"
+                  badgeIcon={Crown}
+                  variant="principal"
+                  onWhatsApp={() => handleWhatsApp(principal)}
+                />
+              </div>
             </section>
           )}
 
           {/* ═══ ۲. سرمعلم ═══ */}
           {headTeacher && (
             <section className="mb-10 sm:mb-14">
-              <SectionLabel icon={Star} text="سرمعلم" color="brand" />
-              <FeaturedCard
-                person={headTeacher}
-                badge="سرمعلم"
-                badgeIcon={Star}
-                variant="head"
-                onWhatsApp={() => handleWhatsApp(headTeacher)}
-              />
+              <div className="max-w-md mx-auto">
+                <SectionLabel
+                  icon={Star}
+                  text="سرمعلم"
+                  color="brand"
+                  centered
+                />
+                <FeaturedCard
+                  person={headTeacher}
+                  badge="سرمعلم"
+                  badgeIcon={Star}
+                  variant="head"
+                  onWhatsApp={() => handleWhatsApp(headTeacher)}
+                />
+              </div>
             </section>
           )}
 
-          {/* ═══ ۳. معلمان و کادر تدریسی ═══ */}
+          {/* ═══ ۳. معلمان ═══ */}
           {teachingStaff.length > 0 && (
             <section className="mb-10 sm:mb-14">
               <SectionLabel
                 icon={Users}
-                text="معلمان و کادر تدریسی"
+                text="معلمان"
                 count={teachingStaff.length}
                 color="brand"
               />
@@ -152,13 +161,29 @@ export default function StaffPage() {
 /* ═══════════════════════════════════════
    برچسب بخش
    ═══════════════════════════════════════ */
-function SectionLabel({ icon: Icon, text, count, color = 'brand' }) {
+function SectionLabel({ icon: Icon, text, count, color = 'brand', centered }) {
   const colors = {
     gold: 'from-gold-400 to-gold-600',
     brand: 'from-brand-500 to-brand-700',
     gray: 'from-gray-400 to-gray-600',
   }
 
+  if (centered) {
+    // حالت وسط‌چین برای کارت‌های ویژه
+    return (
+      <div className="flex flex-col items-center gap-2 mb-5">
+        <div
+          className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${colors[color]} flex items-center justify-center shadow-md`}
+        >
+          <Icon size={18} className="text-white" />
+        </div>
+        <h2 className="font-bold text-xl sm:text-2xl text-gray-900">{text}</h2>
+        <div className="w-12 h-1 bg-gradient-to-l from-brand-500 to-gold-500 rounded-full" />
+      </div>
+    )
+  }
+
+  // حالت معمولی (سمت راست)
   return (
     <div className="flex items-center gap-3 mb-5">
       <div
@@ -177,7 +202,7 @@ function SectionLabel({ icon: Icon, text, count, color = 'brand' }) {
 }
 
 /* ═══════════════════════════════════════
-   کارت ویژه (مدیر و سرمعلم)
+   کارت ویژه (آمر و سرمعلم)
    ═══════════════════════════════════════ */
 function FeaturedCard({
   person,
@@ -211,7 +236,7 @@ function FeaturedCard({
 
   return (
     <div
-      className={`relative max-w-md mx-auto rounded-3xl border-2 bg-gradient-to-br ${styles.card} p-6 sm:p-8 text-center overflow-hidden ${styles.glow}`}
+      className={`relative rounded-3xl border-2 bg-gradient-to-br ${styles.card} p-6 sm:p-8 text-center overflow-hidden ${styles.glow}`}
     >
       <div className="absolute -top-12 -left-12 w-32 h-32 rounded-full bg-white/50 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-12 -right-12 w-40 h-40 rounded-full bg-white/40 blur-3xl pointer-events-none" />
@@ -291,37 +316,8 @@ function FeaturedCard({
 function TeacherCard({ teacher: t, onWhatsApp }) {
   const hasContact = t.whatsapp || t.phone
 
-  // بج سمت (اگر مدیر یا سرمعلم باشد)
-  const roleBadge = (() => {
-    if (t.position === 'principal') {
-      return {
-        label: 'مدیر',
-        style: 'bg-gradient-to-l from-gold-400 to-gold-600 text-white',
-        icon: Crown,
-      }
-    }
-    if (t.position === 'head_teacher') {
-      return {
-        label: 'سرمعلم',
-        style: 'bg-gradient-to-l from-brand-500 to-brand-700 text-white',
-        icon: Star,
-      }
-    }
-    return null
-  })()
-
   return (
-    <div className="group bg-white rounded-2xl border border-gray-100 p-5 text-center hover:shadow-card hover:-translate-y-1 hover:border-brand-200 transition-all duration-300 relative">
-      {/* بج سمت */}
-      {roleBadge && (
-        <div
-          className={`absolute top-3 right-3 ${roleBadge.style} text-[9px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1`}
-        >
-          <roleBadge.icon size={10} />
-          <span>{roleBadge.label}</span>
-        </div>
-      )}
-
+    <div className="group bg-white rounded-2xl border border-gray-100 p-5 text-center hover:shadow-card hover:-translate-y-1 hover:border-brand-200 transition-all duration-300">
       <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-md mb-3">
         {t.photo_url ? (
           <img

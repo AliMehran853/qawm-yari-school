@@ -4,21 +4,21 @@ import {
   School,
   Bell,
   BarChart3,
-  CalendarCheck,
   Megaphone,
+  UserPlus,
 } from 'lucide-react'
 
 import PageWrapper from '../../../app/PageWrapper'
 import Card from '../../../components/ui/Card'
 import StatCard from '../components/StatCard'
 import GradeBarChart from '../components/GradeBarChart'
-import TodayAttendance from '../components/TodayAttendance'
 import RecentAnnouncements from '../components/RecentAnnouncements'
+import RecentStudents from '../components/RecentStudents'
 import {
   useDashboardStats,
   useStudentsByGrade,
-  useTodayAttendance,
   useRecentAnnouncements,
+  useRecentStudents,
 } from '../useDashboard'
 import { useAuthStore } from '../../../store/authStore'
 
@@ -27,8 +27,8 @@ export default function Dashboard() {
 
   const { data: stats, isLoading: statsLoading } = useDashboardStats()
   const { data: byGrade } = useStudentsByGrade()
-  const { data: todayAtt } = useTodayAttendance()
   const { data: recentAnn } = useRecentAnnouncements(4)
+  const { data: recentStudents } = useRecentStudents(5)
 
   return (
     <PageWrapper>
@@ -70,8 +70,9 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* ─── ردیف دوم: نمودار + حضور ─── */}
+      {/* ─── ردیف دوم: نمودار + آخرین شاگردان ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-5">
+        {/* نمودار */}
         <Card flat className="lg:col-span-2">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 size={18} className="text-brand-700" />
@@ -88,14 +89,15 @@ export default function Dashboard() {
           )}
         </Card>
 
+        {/* آخرین شاگردان */}
         <Card flat>
           <div className="flex items-center gap-2 mb-4">
-            <CalendarCheck size={18} className="text-brand-700" />
+            <UserPlus size={18} className="text-brand-700" />
             <h2 className="font-bold text-sm sm:text-base text-gray-900">
-              حضور امروز
+              آخرین دانش‌آموزان
             </h2>
           </div>
-          <TodayAttendance stats={todayAtt} />
+          <RecentStudents students={recentStudents} />
         </Card>
       </div>
 

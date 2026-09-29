@@ -55,6 +55,8 @@ export default function GradeEntryTable({
                   {item.student.father_name && (
                     <p className="text-xs text-gray-500">
                       ولد {item.student.father_name}
+                      {item.student.grandfather_name &&
+                        ` ولد ${item.student.grandfather_name}`}
                     </p>
                   )}
                 </div>
@@ -65,7 +67,9 @@ export default function GradeEntryTable({
                   type="number"
                   inputMode="decimal"
                   value={value}
-                  onChange={(e) => onChange(item.student.id, e.target.value)}
+                  onChange={(e) =>
+                    onChange(item.student.id, e.target.value)
+                  }
                   placeholder={`از ${maxScore}`}
                   min={0}
                   max={maxScore}
@@ -80,9 +84,7 @@ export default function GradeEntryTable({
                 </span>
               </div>
 
-              {error && (
-                <p className="input-error-text mt-1">{error}</p>
-              )}
+              {error && <p className="input-error-text mt-1">{error}</p>}
             </div>
           )
         })}
@@ -93,10 +95,11 @@ export default function GradeEntryTable({
         <table className="table">
           <thead>
             <tr>
-              <th className="w-12">#</th>
-              <th>نام و تخلص</th>
-              <th>نام پدر</th>
-              <th className="w-40">نمره</th>
+              <th className="w-12 text-center">#</th>
+              <th className="text-center">نام و تخلص</th>
+              <th className="text-center">نام پدر</th>
+              <th className="text-center">نام پدرکلان</th>
+              <th className="w-40 text-center">نمره</th>
             </tr>
           </thead>
           <tbody>
@@ -105,20 +108,27 @@ export default function GradeEntryTable({
               const error = validate(value)
               return (
                 <tr key={item.student.id}>
-                  <td className="text-gray-400 fa-num">{toFaNum(idx + 1)}</td>
-                  <td className="font-medium text-gray-900">
+                  <td className="text-gray-400 fa-num text-center">
+                    {toFaNum(idx + 1)}
+                  </td>
+                  <td className="font-medium text-gray-900 text-center">
                     {item.student.name}
                   </td>
-                  <td className="text-gray-600 text-sm">
+                  <td className="text-gray-600 text-sm text-center">
                     {item.student.father_name || '—'}
                   </td>
+                  <td className="text-gray-600 text-sm text-center">
+                    {item.student.grandfather_name || '—'}
+                  </td>
                   <td>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <input
                         type="number"
                         inputMode="decimal"
                         value={value}
-                        onChange={(e) => onChange(item.student.id, e.target.value)}
+                        onChange={(e) =>
+                          onChange(item.student.id, e.target.value)
+                        }
                         placeholder="—"
                         min={0}
                         max={maxScore}
@@ -133,7 +143,9 @@ export default function GradeEntryTable({
                       </span>
                     </div>
                     {error && (
-                      <p className="input-error-text mt-1">{error}</p>
+                      <p className="input-error-text mt-1 text-center">
+                        {error}
+                      </p>
                     )}
                   </td>
                 </tr>

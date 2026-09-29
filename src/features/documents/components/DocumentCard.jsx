@@ -1,4 +1,4 @@
-import { Pencil, Trash2, FileText, Download, ExternalLink } from 'lucide-react'
+import { Pencil, Trash2, FileText, Download } from 'lucide-react'
 import { toFaNum } from '../../../utils/number'
 
 const CATEGORY_STYLE = {
@@ -23,7 +23,12 @@ const FILE_TYPE_LABEL = {
   other: '—',
 }
 
-export default function DocumentCard({ doc, onEdit, onDelete, canManage = true }) {
+export default function DocumentCard({
+  doc,
+  onEdit,
+  onDelete,
+  canManage = true,
+}) {
   const cat = CATEGORY_STYLE[doc.category] || CATEGORY_STYLE.other
   const fileColor = FILE_TYPE_COLOR[doc.file_type] || FILE_TYPE_COLOR.other
 
@@ -63,26 +68,15 @@ export default function DocumentCard({ doc, onEdit, onDelete, canManage = true }
             </p>
           )}
 
-          {/* دکمه‌های اقدام */}
-          <div className="flex items-center gap-2 mt-3">
-            <a
-              href={doc.file_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition"
-            >
-              <ExternalLink size={13} />
-              <span>مشاهده</span>
-            </a>
-            <a
-              href={doc.file_url}
-              download
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition"
-            >
-              <Download size={13} />
-              <span>دانلود</span>
-            </a>
-          </div>
+          {/* دکمه دانلود */}
+          <a
+            href={doc.file_url}
+            download
+            className="mt-3 inline-flex items-center gap-2 text-xs font-medium text-white bg-gradient-to-l from-brand-600 to-brand-800 hover:from-brand-700 hover:to-brand-900 px-4 py-2 rounded-lg transition-all shadow-sm hover:shadow-md"
+          >
+            <Download size={14} />
+            <span>دانلود</span>
+          </a>
         </div>
 
         {/* دکمه‌های مدیریت */}

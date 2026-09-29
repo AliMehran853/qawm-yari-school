@@ -55,14 +55,18 @@ export default function GradeSubjectsList({
             {teacher ? (
               <div className="flex items-center gap-1 shrink-0">
                 <button
-                  onClick={() => onAssignClick({ subject, assignment, teacher })}
+                  onClick={() =>
+                    onAssignClick({ subject, assignment, teacher })
+                  }
                   className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition"
                   aria-label="تغییر"
                 >
                   <Pencil size={16} />
                 </button>
                 <button
-                  onClick={() => onUnassignClick(assignment.id, subject.grade)}
+                  onClick={() =>
+                    onUnassignClick(assignment.id, subject.grade)
+                  }
                   className="p-2 hover:bg-red-50 text-danger rounded-lg transition"
                   aria-label="حذف"
                 >
@@ -71,7 +75,13 @@ export default function GradeSubjectsList({
               </div>
             ) : (
               <button
-                onClick={() => onAssignClick({ subject, assignment: null, teacher: null })}
+                onClick={() =>
+                  onAssignClick({
+                    subject,
+                    assignment: null,
+                    teacher: null,
+                  })
+                }
                 className="btn btn-primary btn-sm shrink-0"
               >
                 <UserPlus size={14} />
@@ -83,12 +93,11 @@ export default function GradeSubjectsList({
       </div>
 
       {/* ─── دسکتاپ: جدول ─── */}
-      <div className="hidden lg:block overflow-x-auto">
+      <div className="hidden lg:block">
         <table className="table">
           <thead>
             <tr>
               <th>مضمون</th>
-              <th>کد</th>
               <th>معلم</th>
               <th className="w-32 text-center">عملیات</th>
             </tr>
@@ -97,12 +106,6 @@ export default function GradeSubjectsList({
             {items.map(({ subject, assignment, teacher }) => (
               <tr key={subject.id}>
                 <td className="font-medium text-gray-900">{subject.name}</td>
-                <td
-                  className="text-gray-500 font-mono text-xs"
-                  dir="ltr"
-                >
-                  {subject.code || '—'}
-                </td>
                 <td>
                   {teacher ? (
                     <div className="flex items-center gap-2">
@@ -124,9 +127,7 @@ export default function GradeSubjectsList({
                       </span>
                     </div>
                   ) : (
-                    <span className="badge badge-warning">
-                      تعیین نشده
-                    </span>
+                    <span className="badge badge-warning">تعیین نشده</span>
                   )}
                 </td>
                 <td>

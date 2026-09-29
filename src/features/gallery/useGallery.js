@@ -1,13 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { galleryApi } from './galleryApi'
+import { galleryApi, PAGE_SIZE } from './galleryApi'
 
 const KEY = 'gallery'
 
-export function useGallery(category = null) {
+// ─── لیست صفحه‌بندی‌شده ───
+export function useGallery({ category = null, page = 0 } = {}) {
   return useQuery({
-    queryKey: [KEY, category],
-    queryFn: () => galleryApi.list(category),
+    queryKey: [KEY, 'list', category, page],
+    queryFn: () => galleryApi.list({ category, page, pageSize: PAGE_SIZE }),
+    keepPreviousData: true, // برای اینکه هنگام تغییر صفحه، صفحه سفید نشود
+  })
+}
+
+// ─── شمارش هر دسته ───
+export function useGalleryCounts() {
+  return useQuery({
+    queryKey: [KEY, 'counts'],
+    queryFn: galleryApi.counts,
+    staleTime: 1000 * 60 * 5,
   })
 }
 

@@ -39,14 +39,14 @@ export default function AboutPage() {
     },
     settings?.principal_name && {
       icon: User,
-      label: 'مدیر مکتب',
+      label: 'آمر مکتب',
       value: settings.principal_name,
       color: 'accent',
     },
     {
       icon: BookOpen,
       label: 'نوع مکتب',
-      value: 'لیسه دولتی ',
+      value: 'لیسه دولتی',
       color: 'info',
     },
     settings?.phone && {
@@ -156,7 +156,6 @@ export default function AboutPage() {
       {/* ═══ CTA تماس ═══ */}
       <section className="max-w-4xl mx-auto px-4 mt-10 sm:mt-12 mb-10">
         <div className="relative rounded-3xl overflow-hidden bg-gradient-to-l from-brand-700 via-brand-800 to-brand-900 shadow-[0_20px_50px_-12px_rgba(67,56,202,0.4)]">
-          {/* ذرات تزئینی */}
           <div className="absolute inset-0 opacity-10">
             <div
               className="absolute inset-0"
@@ -190,9 +189,6 @@ export default function AboutPage() {
   )
 }
 
-/* ═══════════════════════════════════════
-   کارت اطلاعات
-   ═══════════════════════════════════════ */
 function InfoCard({ icon: Icon, label, value, link, color = 'brand', ltr }) {
   const styles = {
     brand: {
@@ -252,7 +248,5 @@ function InfoCard({ icon: Icon, label, value, link, color = 'brand', ltr }) {
     )
   }
 
-  return (
-    <div className={`rounded-2xl border ${s.card} p-4`}>{content}</div>
-  )
+  return <div className={`rounded-2xl border ${s.card} p-4`}>{content}</div>
 }

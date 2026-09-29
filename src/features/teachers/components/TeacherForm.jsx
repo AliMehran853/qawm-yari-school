@@ -8,10 +8,10 @@ import { useTeachers } from '../useTeachers'
 const POSITIONS = [
   {
     value: 'principal',
-    label: 'مدیر مکتب',
+    label: 'آمر',
     icon: Crown,
     unique: true,
-    hint: 'فقط یک نفر می‌تواند مدیر مکتب باشد',
+    hint: 'فقط یک نفر می‌تواند آمر باشد',
   },
   {
     value: 'head_teacher',
@@ -56,7 +56,6 @@ export default function TeacherForm({
 
   const lastMatchedNameRef = useRef('')
 
-  // ─── بارگذاری اطلاعات در حالت ویرایش ───
   useEffect(() => {
     if (teacher) {
       setName(teacher.name || '')
@@ -82,16 +81,12 @@ export default function TeacherForm({
     lastMatchedNameRef.current = ''
   }, [teacher, open])
 
-  // ─── تشخیص سمت از روی نام (وقتی نام با معلمی مطابقت دارد) ───
   useEffect(() => {
-    // در حالت ویرایش یا نام کوتاه، کار نکن
     if (teacher) return
     if (!allTeachers || !name) return
 
     const trimmed = name.trim().toLowerCase()
     if (trimmed.length < 3) return
-
-    // اگر قبلاً برای همین نام اقدام کرده‌ایم، دوباره نکن
     if (lastMatchedNameRef.current === trimmed) return
 
     const timeout = setTimeout(() => {
@@ -104,7 +99,9 @@ export default function TeacherForm({
         lastMatchedNameRef.current = trimmed
 
         const label = POSITIONS.find((p) => p.value === match.position)?.label
-        setAutoFillNotice(`«${match.name}» قبلاً ثبت شده — سمت «${label}» انتخاب شد`)
+        setAutoFillNotice(
+          `«${match.name}» قبلاً ثبت شده — سمت «${label}» انتخاب شد`
+        )
       } else {
         lastMatchedNameRef.current = trimmed
       }
@@ -113,13 +110,11 @@ export default function TeacherForm({
     return () => clearTimeout(timeout)
   }, [name, allTeachers, teacher, position])
 
-  // ─── تغییر سمت ───
   function handlePositionChange(newPosition) {
     setPosition(newPosition)
 
     const posInfo = POSITIONS.find((p) => p.value === newPosition)
 
-    // اگر سمت unique است و در حالت افزودن جدید
     if (posInfo?.unique && !teacher && allTeachers) {
       const existing = allTeachers.find((t) => t.position === newPosition)
 
@@ -166,7 +161,6 @@ export default function TeacherForm({
 
   const currentPos = POSITIONS.find((p) => p.value === position)
 
-  // هشدار سمت unique
   const uniqueWarning = (() => {
     if (!currentPos?.unique || teacher) return null
     if (!allTeachers) return null
@@ -198,7 +192,6 @@ export default function TeacherForm({
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
-          {/* ═══ سمت ═══ */}
           <div>
             <label className="input-label">سمت *</label>
 
@@ -217,8 +210,6 @@ export default function TeacherForm({
                       isActive
                         ? p.value === 'principal'
                           ? 'border-gold-500 bg-gold-50'
-                          : p.value === 'head_teacher'
-                          ? 'border-brand-500 bg-brand-50'
                           : 'border-brand-500 bg-brand-50'
                         : 'border-gray-200 bg-white hover:border-brand-300'
                     }`}
@@ -253,19 +244,16 @@ export default function TeacherForm({
               })}
             </div>
 
-            {/* هشدار سمت unique */}
             {uniqueWarning && (
               <div className="mt-2 flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
                 <Info size={14} className="text-amber-600 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-amber-800 leading-relaxed">
-                  این سمت قبلاً توسط «{uniqueWarning}» پر شده است. اگر ذخیره
-                  کنید، دو نفر در این سمت خواهند بود.
+                  این سمت قبلاً توسط «{uniqueWarning}» پر شده است.
                 </p>
               </div>
             )}
           </div>
 
-          {/* ═══ نام ═══ */}
           <Input
             label="نام و تخلص *"
             value={name}
@@ -280,7 +268,6 @@ export default function TeacherForm({
             error={nameError}
           />
 
-          {/* نمایش پیام auto-fill */}
           {autoFillNotice && (
             <div className="flex items-start gap-2 p-2.5 bg-blue-50 border border-blue-200 rounded-lg -mt-2">
               <Info size={14} className="text-blue-600 shrink-0 mt-0.5" />

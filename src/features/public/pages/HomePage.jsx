@@ -18,7 +18,7 @@ import { useSettings } from '../../settings/useSettings'
 import { useTeachers } from '../../teachers/useTeachers'
 import { useClasses } from '../../classes/useClasses'
 import { useAnnouncements } from '../../announcements/useAnnouncements'
-import { useGallery } from '../../gallery/useGallery'
+import { useGallery, useGalleryCounts } from '../../gallery/useGallery'
 import { formatJalali } from '../../../utils/date'
 import { toFaNum } from '../../../utils/number'
 
@@ -27,7 +27,8 @@ export default function HomePage() {
   const { data: teachers } = useTeachers()
   const { data: classes } = useClasses()
   const { data: announcements } = useAnnouncements()
-  const { data: gallery } = useGallery()
+  const { data: gallery } = useGallery({ page: 0 })
+  const { data: galleryCounts } = useGalleryCounts()
 
   const schoolName = settings?.school_name || 'مکتب قوم یاری'
   const fullName = settings?.school_full_name || 'لیسه قوم یاری'
@@ -37,7 +38,7 @@ export default function HomePage() {
     'لیسه‌ای فعال در قلب ورس که نسل آینده را آموزش می‌دهد.'
 
   const recentAnnouncements = (announcements || []).slice(0, 3)
-  const previewPhotos = (gallery || []).slice(0, 6)
+  const previewPhotos = (gallery?.items || []).slice(0, 4)
 
   return (
     <>
@@ -47,14 +48,14 @@ export default function HomePage() {
           <img
             src={heroImage}
             alt={schoolName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-[center_70%]"
             loading="eager"
           />
           <div className="absolute inset-0 hero-overlay-mobile sm:hidden" />
           <div className="absolute inset-0 hero-overlay hidden sm:block" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-20 sm:py-28 lg:py-36 min-h-[520px] sm:min-h-[600px] flex items-center">
+        <div className="relative max-w-7xl mx-auto px-4 py-16 sm:py-20 lg:py-24 min-h-[480px] sm:min-h-[560px] flex items-center">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md text-white/95 text-xs sm:text-sm px-3.5 py-1.5 rounded-full border border-white/20 mb-5">
               <Sparkles size={14} className="text-gold-300" />
@@ -125,7 +126,13 @@ export default function HomePage() {
           <QuickStat
             icon={ImageIcon}
             label="عکس"
-            value={gallery ? toFaNum(gallery.length) : '۰'}
+            value={
+              galleryCounts?.all
+                ? toFaNum(galleryCounts.all)
+                : gallery?.total
+                ? toFaNum(gallery.total)
+                : '۰'
+            }
             color="info"
           />
         </div>
@@ -147,7 +154,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ═══ گالری ═══ */}
+      {/* ═══ گالری پیش‌نمایش (فشرده) ═══ */}
       {previewPhotos.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20">
           <SectionHeader
@@ -155,16 +162,13 @@ export default function HomePage() {
             link="/photos"
             linkLabel="مشاهده همه"
           />
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-            {previewPhotos.map((p, idx) => (
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {previewPhotos.map((p) => (
               <Link
                 key={p.id}
                 to="/photos"
-                className={`group relative rounded-2xl overflow-hidden bg-gray-100 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 ${
-                  idx === 0
-                    ? 'sm:col-span-2 sm:row-span-2 aspect-square'
-                    : 'aspect-square'
-                }`}
+                className="group relative rounded-2xl overflow-hidden bg-gray-100 shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 aspect-square"
               >
                 <img
                   src={p.image_url}
@@ -175,15 +179,27 @@ export default function HomePage() {
                     e.target.style.display = 'none'
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition" />
                 {p.title && (
-                  <div className="absolute bottom-3 right-3 left-3 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition line-clamp-2">
+                  <div className="absolute bottom-2 right-2 left-2 text-white text-[11px] font-medium opacity-0 group-hover:opacity-100 transition line-clamp-1">
                     {p.title}
                   </div>
                 )}
               </Link>
             ))}
           </div>
+
+          {galleryCounts?.all > 4 && (
+            <div className="text-center mt-5 sm:hidden">
+              <Link
+                to="/photos"
+                className="inline-flex items-center gap-2 text-sm text-brand-700 hover:text-brand-800 font-medium border border-brand-200 bg-brand-50 px-4 py-2 rounded-xl transition"
+              >
+                <ImageIcon size={14} />
+                <span>مشاهده همه ({toFaNum(galleryCounts.all)})</span>
+              </Link>
+            </div>
+          )}
         </section>
       )}
 
@@ -364,5 +380,3 @@ function NewsCard({ announcement }) {
         {announcement.body}
       </p>
     </div>
-  )
-}

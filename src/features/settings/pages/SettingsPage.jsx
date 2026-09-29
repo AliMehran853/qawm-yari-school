@@ -188,8 +188,8 @@ export default function SettingsPage() {
               rows={8}
             />
             <p className="input-hint">
-              این متن در صفحه «درباره مکتب» نمایش داده می‌شود. برای پاراگراف‌بندی،
-              از Enter خالی بین پاراگراف‌ها استفاده کن.
+              این متن در صفحه «درباره مکتب» نمایش داده می‌شود. برای
+              پاراگراف‌بندی، از Enter خالی بین پاراگراف‌ها استفاده کن.
             </p>
           </div>
         </Card>
@@ -264,21 +264,21 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        {/* ═══ مدیریت ═══ */}
+        {/* ═══ آمر مکتب ═══ */}
         <Card flat>
           <div className="flex items-center gap-2 mb-4">
             <User size={18} className="text-brand-700" />
             <h2 className="font-bold text-sm sm:text-base text-gray-900">
-              مدیریت
+              آمر مکتب
             </h2>
           </div>
 
           <Input
-            label="نام مدیر مکتب"
+            label="نام آمر مکتب"
             value={form.principal_name}
             onChange={(e) => set('principal_name', e.target.value)}
             placeholder="مثلاً: غلام علی آشنا"
-            hint="در صفحه درباره مکتب نمایش داده می‌شود"
+            hint="در صفحه «درباره مکتب» نمایش داده می‌شود"
           />
         </Card>
 
