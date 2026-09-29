@@ -154,7 +154,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ═══ گالری پیش‌نمایش (فشرده) ═══ */}
+      {/* ═══ گالری پیش‌نمایش ═══ */}
       {previewPhotos.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 mt-16 sm:mt-20">
           <SectionHeader
@@ -380,3 +380,5 @@ function NewsCard({ announcement }) {
         {announcement.body}
       </p>
     </div>
+  )
+}
