@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/about', label: 'درباره مکتب' },
   { to: '/staff', label: 'کادر آموزشی' },
   { to: '/classes', label: 'صنوف' },
+  { to: '/schedule', label: 'تقسیم اوقات' },
   { to: '/news', label: 'اخبار' },
   { to: '/photos', label: 'گالری' },
   { to: '/library', label: 'کتابخانه' },

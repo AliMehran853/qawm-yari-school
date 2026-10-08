@@ -9,12 +9,14 @@ import {
   Calendar,
   Sparkles,
   FileText,
+  Image as ImageIcon,
 } from 'lucide-react'
 
 import PageWrapper from '../../../app/PageWrapper'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
 import Card from '../../../components/ui/Card'
+import LogoUploader from '../../../components/ui/LogoUploader'
 import { useSettings, useUpdateSettings } from '../useSettings'
 
 export default function SettingsPage() {
@@ -107,6 +109,30 @@ export default function SettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* ═══ لوگو ═══ */}
+        <Card flat className="border-brand-200 bg-brand-50/30">
+          <div className="flex items-center gap-2 mb-4">
+            <ImageIcon size={18} className="text-brand-700" />
+            <div>
+              <h2 className="font-bold text-sm sm:text-base text-gray-900">
+                لوگوی مکتب
+              </h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                در هدر، سایدبار، صفحه ورود و فوتر سایت نمایش داده می‌شود
+              </p>
+            </div>
+          </div>
+
+          <LogoUploader
+            value={form.logo_url}
+            onChange={(url) => set('logo_url', url)}
+            folder="logo"
+            fallbackLetter={form.school_name?.charAt(0) || 'م'}
+            maxSizeKB={200}
+            maxInputMB={5}
+          />
+        </Card>
+
         {/* ═══ اطلاعات اصلی ═══ */}
         <Card flat>
           <div className="flex items-center gap-2 mb-4">
@@ -282,63 +308,35 @@ export default function SettingsPage() {
           />
         </Card>
 
-        {/* ═══ تاریخ و لوگو ═══ */}
+        {/* ═══ تاریخ ═══ */}
         <Card flat>
           <div className="flex items-center gap-2 mb-4">
             <Calendar size={18} className="text-brand-700" />
             <h2 className="font-bold text-sm sm:text-base text-gray-900">
-              تاریخ و لوگو
+              تاریخ
             </h2>
           </div>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Input
-                label="سال تأسیس"
-                value={form.established_year}
-                onChange={(e) => set('established_year', e.target.value)}
-                placeholder="1382"
-                hint="شمسی"
-              />
-              <div>
-                <label className="input-label">سال تعلیمی فعلی</label>
-                <input
-                  type="number"
-                  value={form.current_year}
-                  onChange={(e) => set('current_year', e.target.value)}
-                  dir="ltr"
-                  className="input text-left fa-num"
-                  placeholder="1404"
-                />
-                <p className="input-hint">
-                  سال تحصیلی که الان استفاده می‌شود
-                </p>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
-              label="لینک لوگو"
-              value={form.logo_url}
-              onChange={(e) => set('logo_url', e.target.value)}
-              dir="ltr"
-              className="text-left"
-              placeholder="https://..."
-              hint="لینک مستقیم به عکس لوگو"
+              label="سال تأسیس"
+              value={form.established_year}
+              onChange={(e) => set('established_year', e.target.value)}
+              placeholder="1382"
+              hint="شمسی"
             />
-
-            {form.logo_url && (
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                <img
-                  src={form.logo_url}
-                  alt="پیش‌نمایش لوگو"
-                  className="w-16 h-16 rounded-lg object-cover bg-white border"
-                  onError={(e) => {
-                    e.target.style.display = 'none'
-                  }}
-                />
-                <p className="text-xs text-gray-500">پیش‌نمایش لوگو</p>
-              </div>
-            )}
+            <div>
+              <label className="input-label">سال تعلیمی فعلی</label>
+              <input
+                type="number"
+                value={form.current_year}
+                onChange={(e) => set('current_year', e.target.value)}
+                dir="ltr"
+                className="input text-left fa-num"
+                placeholder="1404"
+              />
+              <p className="input-hint">سال تحصیلی که الان استفاده می‌شود</p>
+            </div>
           </div>
         </Card>
 

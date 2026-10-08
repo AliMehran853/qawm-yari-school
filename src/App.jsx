@@ -16,6 +16,7 @@ import PublicClassesPage from './features/public/pages/PublicClassesPage'
 import NewsPage from './features/public/pages/NewsPage'
 import PhotosPage from './features/public/pages/PhotosPage'
 import LibraryPage from './features/public/pages/LibraryPage'
+import PublicSchedulePage from './features/public/pages/PublicSchedulePage'
 import ContactPage from './features/public/pages/ContactPage'
 
 // ─── پنل ───
@@ -25,6 +26,7 @@ import ClassesPage from './features/classes/pages/ClassesPage'
 import TeachersPage from './features/teachers/pages/TeachersPage'
 import StudentsPage from './features/students/pages/StudentsPage'
 import AssignmentsPage from './features/assignments/pages/AssignmentsPage'
+import SchedulePage from './features/schedule/pages/SchedulePage'
 import GradesEntryPage from './features/grades/pages/GradesEntryPage'
 import ReportCardPage from './features/grades/pages/ReportCardPage'
 import AnnouncementsPage from './features/announcements/pages/AnnouncementsPage'
@@ -48,6 +50,7 @@ function AppRoutes() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/staff" element={<StaffPage />} />
           <Route path="/classes" element={<PublicClassesPage />} />
+          <Route path="/schedule" element={<PublicSchedulePage />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/photos" element={<PhotosPage />} />
           <Route path="/library" element={<LibraryPage />} />
@@ -60,6 +63,7 @@ function AppRoutes() {
         <Route path="/panel/teachers" element={<ProtectedRoute allow={['admin']}><TeachersPage /></ProtectedRoute>} />
         <Route path="/panel/students" element={<ProtectedRoute allow={['admin']}><StudentsPage /></ProtectedRoute>} />
         <Route path="/panel/assignments" element={<ProtectedRoute allow={['admin']}><AssignmentsPage /></ProtectedRoute>} />
+        <Route path="/panel/schedule" element={<ProtectedRoute allow={['admin']}><SchedulePage /></ProtectedRoute>} />
         <Route path="/panel/grades-entry" element={<ProtectedRoute allow={['admin']}><GradesEntryPage /></ProtectedRoute>} />
         <Route path="/panel/report-card" element={<ProtectedRoute allow={['admin']}><ReportCardPage /></ProtectedRoute>} />
         <Route path="/panel/announcements" element={<ProtectedRoute><AnnouncementsPage /></ProtectedRoute>} />

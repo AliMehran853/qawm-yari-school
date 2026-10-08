@@ -11,14 +11,12 @@ const POSITIONS = [
     label: 'آمر',
     icon: Crown,
     unique: true,
-    hint: 'فقط یک نفر می‌تواند آمر باشد',
   },
   {
     value: 'head_teacher',
     label: 'سرمعلم',
     icon: Star,
     unique: true,
-    hint: 'فقط یک نفر می‌تواند سرمعلم باشد',
   },
   {
     value: 'teacher',
@@ -97,7 +95,6 @@ export default function TeacherForm({
       if (match && match.position && match.position !== position) {
         setPosition(match.position)
         lastMatchedNameRef.current = trimmed
-
         const label = POSITIONS.find((p) => p.value === match.position)?.label
         setAutoFillNotice(
           `«${match.name}» قبلاً ثبت شده — سمت «${label}» انتخاب شد`

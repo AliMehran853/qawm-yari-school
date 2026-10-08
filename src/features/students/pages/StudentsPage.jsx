@@ -1,13 +1,22 @@
 import { useState, useMemo } from 'react'
-import { Plus, GraduationCap, Search, X, Users } from 'lucide-react'
+import {
+  Plus,
+  GraduationCap,
+  Search,
+  X,
+  Users,
+  Trophy,
+} from 'lucide-react'
 
 import PageWrapper from '../../../app/PageWrapper'
 import Button from '../../../components/ui/Button'
 import EmptyState from '../../../components/ui/EmptyState'
 import StudentForm from '../components/StudentForm'
 import StudentList from '../components/StudentList'
+import StudentGradesModal from '../components/StudentGradesModal'
 import {
   useStudents,
+  useStudentsWithRanks,
   useCreateStudent,
   useUpdateStudent,
   useDeleteStudent,
@@ -19,24 +28,23 @@ export default function StudentsPage() {
   const [search, setSearch] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [showRanks, setShowRanks] = useState(true)
+  const [viewingStudent, setViewingStudent] = useState(null) // ⭐ جدید
 
-  // همه شاگردان (بدون فیلتر) برای شمارش
   const { data: allStudents, isLoading: loadingAll } = useStudents({
     grade: null,
     status: 'active',
   })
 
-  // شاگردان صنف انتخاب‌شده (اگر فیلتر باشد)
-  const { data: filteredStudents, isLoading: loadingFiltered } = useStudents({
-    grade: gradeFilter,
-    status: 'active',
-  })
+  const { data: rankedStudents, isLoading: loadingRanked } =
+    useStudentsWithRanks(gradeFilter)
+
+  const students = gradeFilter ? rankedStudents : allStudents
 
   const createMut = useCreateStudent()
   const updateMut = useUpdateStudent()
   const deleteMut = useDeleteStudent()
 
-  // ─── شمارش شاگردان هر صنف ───
   const countsByGrade = useMemo(() => {
     if (!allStudents) return {}
     const counts = {}
@@ -47,10 +55,9 @@ export default function StudentsPage() {
   }, [allStudents])
 
   const totalCount = allStudents?.length || 0
-  const currentGradeCount = gradeFilter ? countsByGrade[gradeFilter] || 0 : totalCount
-
-  // ─── لیست نهایی برای نمایش ───
-  const students = filteredStudents || allStudents
+  const currentGradeCount = gradeFilter
+    ? countsByGrade[gradeFilter] || 0
+    : totalCount
 
   const filtered = useMemo(() => {
     if (!students) return []
@@ -65,7 +72,7 @@ export default function StudentsPage() {
     )
   }, [students, search])
 
-  const isLoading = loadingAll || loadingFiltered
+  const isLoading = gradeFilter ? loadingRanked : loadingAll
 
   function handleAdd() {
     setEditing(null)
@@ -75,6 +82,11 @@ export default function StudentsPage() {
   function handleEdit(student) {
     setEditing(student)
     setFormOpen(true)
+  }
+
+  // ⭐ کلیک روی دکمه نمرات
+  function handleViewGrades(student) {
+    setViewingStudent(student)
   }
 
   async function handleSubmit(values) {
@@ -95,14 +107,15 @@ export default function StudentsPage() {
 
   return (
     <PageWrapper>
-      {/* ═══ هدر ═══ */}
       <div className="flex items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
         <div className="min-w-0 flex-1">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-brand-700">
             دانش‌آموزان
           </h1>
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
-            مدیریت دانش‌آموزان مکتب
+            {gradeFilter
+              ? `لیست دانش‌آموزان صنف ${toFaNum(gradeFilter)} — مرتب بر اساس رتبه`
+              : 'مدیریت دانش‌آموزان مکتب'}
           </p>
         </div>
         <Button onClick={handleAdd} className="shrink-0" aria-label="افزودن">
@@ -111,9 +124,7 @@ export default function StudentsPage() {
         </Button>
       </div>
 
-      {/* ═══ کارت شمارش کل ═══ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-5">
-        {/* کل دانش‌آموزان */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-5 shadow-lg">
           <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-white/10 blur-2xl pointer-events-none" />
           <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/5 blur-2xl pointer-events-none" />
@@ -134,7 +145,6 @@ export default function StudentsPage() {
           </div>
         </div>
 
-        {/* صنف انتخاب‌شده */}
         <div
           className={`relative overflow-hidden rounded-2xl p-5 shadow-lg transition-all ${
             gradeFilter
@@ -186,14 +196,13 @@ export default function StudentsPage() {
               >
                 {gradeFilter
                   ? `از مجموع ${toFaNum(totalCount)} دانش‌آموز`
-                  : 'برای دیدن آمار صنف، روی آن کلیک کن'}
+                  : 'برای دیدن رتبه‌بندی، روی یک صنف کلیک کن'}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ═══ فیلتر صنف با شمارنده ═══ */}
       <div className="mb-4 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto">
         <div className="flex gap-2 min-w-max sm:min-w-0 sm:flex-wrap">
           <FilterChip
@@ -220,7 +229,30 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      {/* ═══ جستجو ═══ */}
+      {gradeFilter && students && students.length > 0 && (
+        <div className="mb-4 flex items-center justify-between gap-3 p-3 bg-brand-50/60 border border-brand-100 rounded-xl">
+          <div className="flex items-center gap-2 min-w-0">
+            <Trophy size={16} className="text-gold-600 shrink-0" />
+            <p className="text-xs sm:text-sm text-brand-800">
+              {showRanks ? 'لیست بر اساس رتبه مرتب شده' : 'نمایش بدون رتبه'}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowRanks((v) => !v)}
+            className={`relative w-12 h-6 rounded-full transition shrink-0 ${
+              showRanks ? 'bg-gold-500' : 'bg-gray-300'
+            }`}
+            aria-label="تغییر نمایش رتبه"
+          >
+            <span
+              className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition ${
+                showRanks ? 'left-0.5' : 'left-6'
+              }`}
+            />
+          </button>
+        </div>
+      )}
+
       {students?.length > 0 && (
         <div className="relative mb-4">
           <Search
@@ -246,7 +278,6 @@ export default function StudentsPage() {
         </div>
       )}
 
-      {/* ═══ کارت اصلی ═══ */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {isLoading ? (
           <div className="py-16 text-center">
@@ -291,11 +322,12 @@ export default function StudentsPage() {
             students={filtered}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onViewGrades={handleViewGrades}
+            showRanks={gradeFilter && showRanks}
           />
         )}
       </div>
 
-      {/* ═══ تعداد پایین ═══ */}
       {filtered.length > 0 && (
         <p className="text-xs text-gray-400 text-center mt-4">
           {toFaNum(filtered.length)} دانش‌آموز نمایش داده می‌شود
@@ -305,7 +337,6 @@ export default function StudentsPage() {
         </p>
       )}
 
-      {/* ═══ فرم ═══ */}
       <StudentForm
         open={formOpen}
         student={editing}
@@ -314,13 +345,17 @@ export default function StudentsPage() {
         onSubmit={handleSubmit}
         loading={createMut.isPending || updateMut.isPending}
       />
+
+      {/* ⭐ مودال نمرات */}
+      <StudentGradesModal
+        open={!!viewingStudent}
+        student={viewingStudent}
+        onClose={() => setViewingStudent(null)}
+      />
     </PageWrapper>
   )
 }
 
-/* ═══════════════════════════════════════
-   چیپ فیلتر با شمارنده
-   ═══════════════════════════════════════ */
 function FilterChip({ active, onClick, count, dim = false, children }) {
   return (
     <button

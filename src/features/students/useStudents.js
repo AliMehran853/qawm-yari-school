@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { studentsApi } from './studentsApi'
+import { CURRENT_YEAR } from '../../lib/constants'
 
 const KEY = 'students'
 
@@ -8,6 +9,15 @@ export function useStudents(filters = {}) {
   return useQuery({
     queryKey: [KEY, filters],
     queryFn: () => studentsApi.list(filters),
+  })
+}
+
+// ⭐ لیست با رتبه (فقط یک صنف)
+export function useStudentsWithRanks(grade, year = CURRENT_YEAR) {
+  return useQuery({
+    queryKey: [KEY, 'with-ranks', grade, year],
+    queryFn: () => studentsApi.listWithRanks(grade, year),
+    enabled: !!grade,
   })
 }
 

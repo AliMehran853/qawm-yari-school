@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { teachersApi } from './teachersApi'
+import { CURRENT_YEAR } from '../../lib/constants'
 
 const KEY = 'teachers'
 
@@ -8,6 +9,15 @@ export function useTeachers() {
   return useQuery({
     queryKey: [KEY],
     queryFn: teachersApi.list,
+  })
+}
+
+// ⭐ جزئیات کامل معلم
+export function useTeacherDetails(teacherId, year = CURRENT_YEAR) {
+  return useQuery({
+    queryKey: [KEY, 'details', teacherId, year],
+    queryFn: () => teachersApi.getWithAssignments(teacherId, year),
+    enabled: !!teacherId,
   })
 }
 

@@ -4,7 +4,6 @@ import { CURRENT_YEAR } from '../../lib/constants'
 export const assignmentsApi = {
   // لیست همه مضامین یک صنف با معلم تعیین‌شده
   async listByGrade(grade, year = CURRENT_YEAR) {
-    // ۱. مضامین صنف
     const { data: subjects, error: sErr } = await supabase
       .from('subjects')
       .select('*')
@@ -13,7 +12,6 @@ export const assignmentsApi = {
       .order('name')
     if (sErr) throw sErr
 
-    // ۲. تعیین‌های این صنف
     const { data: assignments, error: aErr } = await supabase
       .from('teacher_subjects')
       .select('id, subject_id, teacher_id')
@@ -21,7 +19,6 @@ export const assignmentsApi = {
       .eq('year', year)
     if (aErr) throw aErr
 
-    // ۳. اطلاعات معلم‌ها
     const teacherIds = [...new Set(assignments.map((a) => a.teacher_id))]
     let teachers = []
     if (teacherIds.length > 0) {
@@ -33,7 +30,6 @@ export const assignmentsApi = {
       teachers = data
     }
 
-    // ۴. ترکیب داده‌ها
     return subjects.map((subject) => {
       const assignment = assignments.find((a) => a.subject_id === subject.id)
       const teacher = assignment
@@ -47,9 +43,8 @@ export const assignmentsApi = {
     })
   },
 
-  // تعیین معلم به مضمون
+  // تعیین معلم به یک مضمون
   async assign({ teacher_id, subject_id, grade, year = CURRENT_YEAR }) {
-    // اگر قبلاً تعیین شده، اول حذف کن
     await supabase
       .from('teacher_subjects')
       .delete()
@@ -57,7 +52,6 @@ export const assignmentsApi = {
       .eq('grade', grade)
       .eq('year', year)
 
-    // سپس اضافه کن
     const { data, error } = await supabase
       .from('teacher_subjects')
       .insert({ teacher_id, subject_id, grade, year })
@@ -67,7 +61,36 @@ export const assignmentsApi = {
     return data
   },
 
-  // حذف تعیین
+  // ⭐ تعیین یک معلم برای همه مضامین یک صنف
+  async assignAll({ teacher_id, grade, year = CURRENT_YEAR, subject_ids }) {
+    // ۱. پاک کردن همه تعیین‌های قبلی این صنف
+    await supabase
+      .from('teacher_subjects')
+      .delete()
+      .eq('grade', grade)
+      .eq('year', year)
+
+    // ۲. اگر معلم خالی است (یعنی فقط پاک کن) → برگرد
+    if (!teacher_id) return []
+
+    // ۳. ساخت رکوردها برای همه مضامین
+    const rows = subject_ids.map((subject_id) => ({
+      teacher_id,
+      subject_id,
+      grade,
+      year,
+    }))
+
+    if (rows.length === 0) return []
+
+    const { data, error } = await supabase
+      .from('teacher_subjects')
+      .insert(rows)
+      .select()
+    if (error) throw error
+    return data
+  },
+
   async unassign(id) {
     const { error } = await supabase
       .from('teacher_subjects')
@@ -76,7 +99,6 @@ export const assignmentsApi = {
     if (error) throw error
   },
 
-  // آمار: هر معلم چند مضمون دارد
   async teacherLoad(year = CURRENT_YEAR) {
     const { data, error } = await supabase
       .from('teacher_subjects')

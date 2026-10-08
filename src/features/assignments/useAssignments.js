@@ -26,6 +26,24 @@ export function useAssignTeacher() {
   })
 }
 
+// ⭐ تعیین یک معلم برای همه مضامین
+export function useAssignAll() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: assignmentsApi.assignAll,
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: [KEY, vars.grade] })
+      qc.invalidateQueries({ queryKey: ['teacher-load'] })
+      toast.success(
+        vars.teacher_id
+          ? `معلم برای همه مضامین صنف ${vars.grade} تعیین شد`
+          : 'همه تعیین‌ها پاک شد'
+      )
+    },
+    onError: (err) => toast.error(err.message || 'خطا در تعیین گروهی'),
+  })
+}
+
 export function useUnassignTeacher() {
   const qc = useQueryClient()
   return useMutation({

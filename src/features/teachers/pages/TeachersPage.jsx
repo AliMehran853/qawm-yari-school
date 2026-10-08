@@ -69,6 +69,7 @@ export default function TeachersPage() {
     setFormOpen(true)
   }
 
+  // ─── کلیک روی معلم ───
   function handleView(teacher) {
     setViewing(teacher)
   }
@@ -80,6 +81,7 @@ export default function TeachersPage() {
       await createMut.mutateAsync(values)
     }
     setFormOpen(false)
+    setEditing(null)
   }
 
   async function handleDelete(teacher) {
@@ -173,7 +175,7 @@ export default function TeachersPage() {
         </div>
       )}
 
-      {/* ═══ کارت اصلی ═══ */}
+      {/* ═══ لیست معلمان ═══ */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {isLoading ? (
           <div className="py-16 text-center">
@@ -225,16 +227,19 @@ export default function TeachersPage() {
         </p>
       )}
 
-      {/* ═══ فرم ═══ */}
+      {/* ═══ فرم افزودن/ویرایش ═══ */}
       <TeacherForm
         open={formOpen}
         teacher={editing}
-        onClose={() => setFormOpen(false)}
+        onClose={() => {
+          setFormOpen(false)
+          setEditing(null)
+        }}
         onSubmit={handleSubmit}
         loading={createMut.isPending || updateMut.isPending}
       />
 
-      {/* ═══ مدال جزئیات ═══ */}
+      {/* ═══ مودال جزئیات ═══ */}
       <TeacherDetailModal
         open={!!viewing}
         teacher={viewing}
@@ -272,9 +277,7 @@ function StatCard({ icon: Icon, label, value, gradient, desc, unique }) {
           {toFaNum(value)}
         </p>
         <p className="text-xs font-medium text-white/90 mt-1">{label}</p>
-        {desc && (
-          <p className="text-[10px] text-white/60 mt-0.5">{desc}</p>
-        )}
+        {desc && <p className="text-[10px] text-white/60 mt-0.5">{desc}</p>}
       </div>
     </div>
   )

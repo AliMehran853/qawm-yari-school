@@ -12,6 +12,7 @@ import {
   UserCheck,
   PenSquare,
   Award,
+  Calendar,
   UserCircle,
   Database,
 } from 'lucide-react'
@@ -31,6 +32,7 @@ const ADMIN_MENU = [
   { to: '/panel/classes', label: 'صنوف', icon: School },
   { to: '/panel/subjects', label: 'مضامین', icon: BookOpen },
   { to: '/panel/assignments', label: 'تعیین معلم', icon: UserCheck },
+  { to: '/panel/schedule', label: 'تقسیم اوقات', icon: Calendar },
   { to: '/panel/grades-entry', label: 'ورود نمرات', icon: PenSquare },
   { to: '/panel/report-card', label: 'کارنامه', icon: Award },
   { to: '/panel/announcements', label: 'اعلانات', icon: Bell },
@@ -42,7 +44,6 @@ const ADMIN_MENU = [
   { to: '/panel/account', label: 'حساب من', icon: UserCircle },
   { to: '/panel/settings', label: 'تنظیمات', icon: Settings },
 ]
-
 const TEACHER_MENU = [
   DASHBOARD,
   { to: '/panel/my-classes', label: 'صنف‌های من', icon: School },
