@@ -6,6 +6,7 @@ import AuthProvider from './app/providers/AuthProvider'
 import ProtectedRoute from './app/ProtectedRoute'
 import PublicLayout from './app/public/PublicLayout'
 import ScrollToTop from './app/ScrollToTop'
+import { ConfirmProvider } from './hooks/useConfirm'
 
 // ─── عمومی ───
 import Login from './pages/Login'
@@ -87,8 +88,10 @@ export default function App() {
     <BrowserRouter>
       <QueryProvider>
         <AuthProvider>
-          <Toaster position="top-center" richColors />
-          <AppRoutes />
+          <ConfirmProvider>
+            <Toaster position="top-center" richColors />
+            <AppRoutes />
+          </ConfirmProvider>
         </AuthProvider>
       </QueryProvider>
     </BrowserRouter>
