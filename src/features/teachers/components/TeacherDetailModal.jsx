@@ -52,12 +52,10 @@ const POSITION_CONFIG = {
 }
 
 export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
-  // ─── دریافت داده تازه ───
   const { data: details, isLoading } = useTeacherDetails(
     open ? teacher?.id : null
   )
 
-  // ─── Keyboard + scroll lock ───
   useEffect(() => {
     if (!open) return
     function handleKey(e) {
@@ -73,7 +71,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
 
   if (!open || !teacher) return null
 
-  // ⭐ استفاده از داده تازه اگر هست، وگرنه از props
   const data = details || teacher
 
   const config = POSITION_CONFIG[data.position] || POSITION_CONFIG.teacher
@@ -89,7 +86,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
   }
 
   function handleEditClick() {
-    // ⭐ بستن این مودال، سپس باز کردن فرم ویرایش
     onClose()
     setTimeout(() => {
       onEdit(data)
@@ -106,7 +102,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
         className="bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-modal animate-slide-up max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ═══ هدر ═══ */}
         <div
           className={`relative bg-gradient-to-br ${config.bg} border-b ${config.border} pt-6 pb-20 px-5 sm:rounded-t-3xl`}
         >
@@ -156,9 +151,7 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
           )}
         </div>
 
-        {/* ═══ محتوا ═══ */}
         <div className="p-5 space-y-3">
-          {/* ═══ خلاصه تدریس ═══ */}
           {isLoading ? (
             <div className="bg-gradient-to-bl from-brand-700 to-brand-900 rounded-2xl p-6 shadow-lg text-center">
               <Loader2
@@ -189,7 +182,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
-                  {/* مضمون */}
                   <div className="bg-white/15 backdrop-blur-sm rounded-xl p-2.5 border border-white/20 text-center">
                     <BookOpen
                       size={12}
@@ -201,7 +193,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
                     <p className="text-[9px] text-white/70 mt-0.5">مضمون</p>
                   </div>
 
-                  {/* صنف */}
                   <div className="bg-white/15 backdrop-blur-sm rounded-xl p-2.5 border border-white/20 text-center">
                     <GraduationCap
                       size={12}
@@ -213,7 +204,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
                     <p className="text-[9px] text-white/70 mt-0.5">صنف</p>
                   </div>
 
-                  {/* کل تعیین‌ها */}
                   <div
                     className={`rounded-xl p-2.5 text-center ${
                       isTeaching
@@ -247,7 +237,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
             </div>
           )}
 
-          {/* ═══ لیست تفصیلی ═══ */}
           {!isLoading &&
             details?.byGrade &&
             Object.keys(details.byGrade).length > 0 && (
@@ -294,7 +283,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
               </div>
             )}
 
-          {/* ═══ اطلاعات پایه ═══ */}
           {data.phone && (
             <InfoRow
               icon={Phone}
@@ -339,7 +327,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
             </div>
           )}
 
-          {/* حالت خالی */}
           {!data.phone &&
             !data.address &&
             !data.hire_date &&
@@ -358,7 +345,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
             )}
         </div>
 
-        {/* ═══ دکمه‌ها ═══ */}
         <div className="border-t border-gray-100 p-4 space-y-2">
           <div className="flex gap-2">
             {hasWhatsApp && (
@@ -394,9 +380,6 @@ export default function TeacherDetailModal({ open, teacher, onClose, onEdit }) {
   )
 }
 
-/* ═══════════════════════════════════════
-   ردیف اطلاعات
-   ═══════════════════════════════════════ */
 function InfoRow({ icon: Icon, label, value, ltr }) {
   return (
     <div className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">

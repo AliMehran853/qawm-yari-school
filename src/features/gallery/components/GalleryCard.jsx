@@ -16,7 +16,7 @@ export default function GalleryCard({
   onClick,
   canManage = true,
 }) {
-  const [status, setStatus] = useState('loading') // 'loading' | 'loaded' | 'error'
+  const [status, setStatus] = useState('loading')
 
   return (
     <div className="group relative bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-card transition">
@@ -76,27 +76,28 @@ export default function GalleryCard({
       </div>
 
       {/* دکمه‌های مدیریت */}
+      {/* در موبایل: همیشه نمایان | در دسکتاپ: روی hover */}
       {canManage && (
-        <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+        <div className="absolute top-2 left-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition">
           <button
             onClick={(e) => {
               e.stopPropagation()
               onEdit(item)
             }}
-            className="w-8 h-8 bg-white/95 backdrop-blur rounded-lg shadow flex items-center justify-center text-blue-600 hover:bg-white"
+            className="w-9 h-9 bg-white/95 backdrop-blur rounded-lg shadow-md flex items-center justify-center text-blue-600 hover:bg-white active:scale-95 transition"
             aria-label="ویرایش"
           >
-            <Pencil size={14} />
+            <Pencil size={15} />
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation()
               onDelete(item)
             }}
-            className="w-8 h-8 bg-white/95 backdrop-blur rounded-lg shadow flex items-center justify-center text-danger hover:bg-white"
+            className="w-9 h-9 bg-white/95 backdrop-blur rounded-lg shadow-md flex items-center justify-center text-danger hover:bg-white active:scale-95 transition"
             aria-label="حذف"
           >
-            <Trash2 size={14} />
+            <Trash2 size={15} />
           </button>
         </div>
       )}
